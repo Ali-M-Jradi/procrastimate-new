@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 class ActivityLogsController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      */
@@ -62,4 +63,5 @@ class ActivityLogsController extends Controller
     {
         //
     }
+    
 }
