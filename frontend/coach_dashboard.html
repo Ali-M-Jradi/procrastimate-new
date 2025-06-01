@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coach Dashboard</title>
+</head>
+<body>
+    <header>
+        <h1>Coach Dashboard</h1>
+        <nav>
+            <ul>
+                <li><a href="/coach/my-notifications">View Notifications</a></li>
+                <li>
+                    <form action="/coach/create-notification" method="POST">
+                        <input type="text" name="message" placeholder="Notification message" required>
+                        <button type="submit">Create Notification</button>
+                    </form>
+                </li>
+                <li>
+                    <form action="/coach/user/1/assign-task" method="POST">
+                        <input type="number" name="task_id" placeholder="Task ID" required>
+                        <button type="submit">Assign Task to User 1</button>
+                    </form>
+                </li>
+                <li>
+                    <form action="/coach/user/1/remove-task" method="POST">
+                        <input type="number" name="task_id" placeholder="Task ID" required>
+                        <button type="submit">Remove Task from User 1</button>
+                    </form>
+                </li>
+                <li>
+                    <form action="/coach/logout" method="POST">
+                        <button type="submit">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <p>Welcome, coach! Here you can manage tasks and notifications for your users.</p>
+    </main>
+</body>
+</html>
