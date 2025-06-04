@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Group</title>
+</head>
+<body>
+    <header>
+        <h1>Delete Group</h1>
+        <p>Use the form below to delete a group.</p>
+    </header>
+
+    <main>
+        <form action="/admin/group/{{ group.id }}/delete" method="POST">
+            <!-- Replace {{ group.id }} with the actual group ID -->
+            <p>Are you sure you want to delete the group "{{ group.name }}"?</p>
+            <button type="submit">Delete Group</button>
+        </form>
+    </main>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Notification</title>
+</head>
+<body>
+    <header>
+        <h1>Send Notification</h1>
+        <p>Use the form below to send a notification.</p>
+    </header>
+
+    <main>
+        <form action="/send_notification" method="POST">
+            <label for="recipient">Recipient:</label>
+            <input type="text" id="recipient" name="recipient" required>
+
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" required></textarea>
+
+            <button type="submit">Send Notification</button>
+        </form>
+    </main>
+</body>
+</html>

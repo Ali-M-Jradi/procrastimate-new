@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demote Coach</title>
+</head>
+<body>
+    <header>
+        <h1>Demote Coach</h1>
+        <p>Use the form below to demote a coach.</p>
+    </header>
+
+    <main>
+        <form action="/admin/user/{{ user.id }}/demote-coach" method="POST">
+            <!-- Replace {{ user.id }} with the actual user ID -->
+            <label for="role">New Role:</label>
+            <input type="text" id="role" name="role" value="user" readonly>
+            <br><br>
+            <button type="submit">Demote</button>
+        </form>
+    </main>
+</body>
+</html>

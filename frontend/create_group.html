@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Group</title>
+</head>
+<body>
+    <header>
+        <h1>Create Group</h1>
+        <p>Use the form below to create a new group.</p>
+    </header>
+
+    <main>
+        <form action="/create-group" method="POST">
+            <label for="group_name">Group Name:</label>
+            <input type="text" id="group_name" name="group_name" required>
+            <br><br>
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea>
+            <br><br>
+
+            <button type="submit">Create Group</button>
+        </form>
+    </main>
+</body>
+</html>

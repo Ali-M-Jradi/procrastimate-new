@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recieved Notifications</title>
+</head>
+<body>
+    <header>
+        <h1>Received Notifications</h1>
+    </header>
+
+    <main>
+        <ul>
+            {% for notification in notifications %}
+                <li>
+                    <strong>{{ notification.sender }}:</strong> {{ notification.message }}
+                    <span>at {{ notification.timestamp }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    </main>
+
+    <footer>
+        <p><a href="/user_dashboard.html">Back to Dashboard</a></p>
+    </footer>
+</body>
+</html>

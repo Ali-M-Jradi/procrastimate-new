@@ -1,6 +1,7 @@
+@extends('layouts.app')
 
 @section('content')
-<div class="container" style="max-width: 400px; margin: 40px auto;">
+<div class="container">
     <h2>Login</h2>
     @if ($errors->any())
         <div style="color: red;">
@@ -13,15 +14,17 @@
     @endif
     <form method="POST" action="{{ route('login') }}">
         @csrf
-        <div style="margin-bottom: 15px;">
+        <div >
             <label for="email">Email:</label>
             <input id="email" type="email" name="email" required autofocus class="form-control" value="{{ old('email') }}">
         </div>
-        <div style="margin-bottom: 15px;">
+        <div >
             <label for="password">Password:</label>
             <input id="password" type="password" name="password" required class="form-control">
         </div>
         <button type="submit" class="btn btn-primary">Login</button>
     </form>
-</div>
+</div>       
+ <p class="mt-3">Don't have an account? <a href="{{ route('register') }}">Register here</a>.</p>
+
 @endsection

@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('group_tasks', function (Blueprint $table) {
-            $table->primaryId('id');
-            $table->stirng('name')->default('user');
-            $table->text('description')->nullable();
-            $table->boolean('isPublic')->default(true);
-            $table->integer('created_by');
+        Schema::create('coach', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->default('user');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->string('role')->default('coach'); // Default role set to 'coach'
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('group_tasks');
+        Schema::dropIfExists('coach');
     }
 };

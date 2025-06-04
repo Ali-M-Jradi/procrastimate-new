@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('groups', function (Blueprint $table) {
-            $table->primaryId('id');
-            $table->stirng('name')->default('user');
+            $table->id();
+            $table->string('name')->default('user'); 
             $table->text('description')->nullable();
             $table->boolean('isPublic')->default(true);
             $table->integer('created_by');

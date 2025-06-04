@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promote User</title>
+</head>
+<body>
+    <h2>Promote User to Coach</h2>
+    <form action="/admin/user/1/promote-user" method="POST">
+        <!-- Replace 1 with the actual user ID -->
+        <label for="role">New Role:</label>
+        <input type="text" id="role" name="role" value="coach" readonly>
+        <br><br>
+        <button type="submit">Promote</button>
+    </form>
+</body>
+</html>

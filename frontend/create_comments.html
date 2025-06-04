@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Comment</title>
+</head>
+<body>
+    <header>
+        <h1>Create a New Comment</h1>
+        <p>Fill out the form below to create a new comment.</p>
+    </header>
+
+    <main>
+        <form action="/create_comment" method="POST">
+            <label for="task_id">Task ID:</label>
+            <input type="text" id="task_id" name="task_id" required>
+
+            <label for="comment_text">Comment:</label>
+            <textarea id="comment_text" name="comment_text" required></textarea>
+
+            <button type="submit">Create Comment</button>
+        </form>
+    </main>
+</body>
+</html>

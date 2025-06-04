@@ -6,6 +6,11 @@ use App\Http\Controllers\GuestController;
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+
+Route::get('/', function () {
+    return ['Laravel' => app()->version()];
+});
+
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
@@ -14,13 +19,13 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name
 
 // Guest Routes
 
-Route::middleware(['auth'])->group(function () {
+
     Route::get('homepage',[\App\Http\Controllers\GuestController::class, 'index'])->name('homepage');
-    Route::get('/login', [\App\Http\Controllers\Auth\GuestController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [\App\Http\Controllers\Auth\GuestController::class, 'login']);
-    Route::get('/register', [\App\Http\Controllers\Auth\GuestController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [\App\Http\Controllers\Auth\GuestController::class, 'register']);
-});
+    Route::get('/login', [\App\Http\Controllers\GuestController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [\App\Http\Controllers\GuestController::class, 'login']);
+    Route::get('/register', [\App\Http\Controllers\GuestController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [\App\Http\Controllers\GuestController::class, 'register']);
+
 
 //User Routes
 
@@ -55,7 +60,7 @@ Route::middleware(['auth','role:coach'])->group(function(){
     Route::get('/coach/my-notifications', [App\Http\Controllers\CoachController::class, 'viewNotifications'])->name('coach.notifications.view');
     Route::post('/coach/create-notification', [App\Http\Controllers\CoachController::class, 'createNotification'])->name('coach.notification.create');
     
-    Route::post('/coach/logout', [\App\Http\Controllers\Auth\CoachController::class, 'logout'])->name('coach.logout');
+    Route::post('/coach/logout', [\App\Http\Controllers\CoachController::class, 'logout'])->name('coach.logout');
     
        
 });
@@ -76,7 +81,7 @@ Route::middleware(['auth','role:admin'])->group(function(){
     Route::get('/admin/my-notifications', [App\Http\Controllers\AdminController::class, 'viewNotifications'])->name('admin.notifications.view');
     Route::post('/admin/create-notification', [App\Http\Controllers\AdminController::class, 'createNotification'])->name('admin.notification.create');
     
-    Route::post('/admin/logout', [\App\Http\Controllers\Auth\AdminController::class, 'logout'])->name('admin.logout');
+    Route::post('/admin/logout', [\App\Http\Controllers\AdminController::class, 'logout'])->name('admin.logout');
     
     Route::post('/admin/user/{id}/update', [App\Http\Controllers\AdminController::class, 'updateUser'])->name('admin.user.update');
     Route::get('/admin/user/{id}/delete', [App\Http\Controllers\AdminController::class, 'deleteUser'])->name('admin.user.delete');

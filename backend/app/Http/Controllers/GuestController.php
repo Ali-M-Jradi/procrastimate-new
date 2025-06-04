@@ -13,12 +13,12 @@ class GuestController extends Controller
 
     public function showLoginForm()
     {
-        return view('auth.login');
+        return view('login');
     }
 
     public function login(Request $request)
     {
-        validate($request, [
+        $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:6',
         ]);
@@ -30,20 +30,23 @@ class GuestController extends Controller
 
     public function showRegistrationForm()
     {
-        return view('auth.register');
+        $roles = ['user', 'coach']; // or fetch from DB if needed
+        return view('register', compact('roles'));
     }
 
     public function register(Request $request)
     {
-        validate($request, [
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
+            'role' => 'required|in:user,coach',
         ]);
         $user = new \App\Models\User();
         $user->name = $request->input('name');
         $user->email = $request->input('email');    
         $user->password = bcrypt($request->input('password'));
+        $user->role = $request->input('role');
         $user->save();
         auth()->login($user);
         return redirect()->route('dashboard')->with('success', 'Registration successful!');

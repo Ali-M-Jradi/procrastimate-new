@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Task</title>
+</head>
+<body>
+    <header>
+        <h1>Create a New Task</h1>
+        <p>Fill out the form below to create a new task.</p>
+    </header>
+
+    <main>
+        <form action="/create_task.html" method="POST">
+            <label for="task_name">Task Name:</label>
+            <input type="text" id="task_name" name="task_name" required>
+
+            <label for="task_description">Description:</label>
+            <textarea id="task_description" name="task_description" required></textarea>
+
+            <label for="due_date">Due Date:</label>
+            <input type="date" id="due_date" name="due_date">
+
+            <button type="submit">Create Task</button>
+            
+        </form>
+    </main>
+
+ 
+</body>
+</html>

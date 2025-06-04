@@ -8,86 +8,104 @@ use App\Models\User;
 
 class CoachController extends Controller
 {
-    public function viewDashboard()
+    public function dashboard()
     {
-        return view('coach.dashboard');
+        // Get this patient's appointments
+        $tasks = Auth::user()->coach->tasks()->get();
+        return view('caoch.dashboard', compact('task'));
     }
 
     public function viewTask($id)
-    {
+    {   
         $task = Task::findOrFail($id);
         return view('coach.task.view', compact('task'));
     }
 
     public function updateTask(Request $request, $id)
     {
-        $task = Task::findOrFail($id);
-        $task->update($request->all());
-        return redirect()->route('coach.task.view', ['id' => $id])->with('success', 'Task updated successfully!');
+        $task = Task::where('id', $id)->where('task_id', Auth::user()->coach->id)->firstOrFail();
+        $request->validate([
+            'dueDate' => 'required|date',
+        ]);
+        $task->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'dueDate' => $request->dueDate,
+            'isCompleted' => $request->isCompleted ? true : false,
+        ]);
+        
+        return redirect()->route('task.view', ['id' => $id])->with('success', 'Task updated successfully!');
     }
 
     public function deleteTask($id)
     {
-        $task = Task::findOrFail($id);
+        $task = Task::where('id', $id)->where('user_id', Auth::user()->coach->id)->firstOrFail();
         $task->delete();
-        return redirect()->route('coach.dashboard')->with('success', 'Task deleted successfully!');
+        return redirect()->route('coach.dashboard')->with('success', 'Appointment cancelled.');
     }
 
-    public function createTask()
+    public function createTask(Request $request)
+    {   
+        $request->validate([
+        'user_id' => 'required|exists:user,id',
+        'dueDate' => 'required|date',
+        ]);
+        Task::create([
+        'user' => Auth::user()->coach->id,
+        'dueDate' => $request->dueDate,
+        'isCompleted' => 'pending',
+        ]);
+        return redirect()->route('coach.dashboard')->with('success', 'Task Created.');
+    }
+
+    public function sendNotification(Request $request)
     {
-        return view('coach.task.create');
+        auth()->user()->notifications()->create($request->all());
+        return redirect()->route('notifications.view')->with('success', 'Notification created successfully!');
     }
 
-    public function storeTask(Request $request)
-    {
-        $task = Task::create($request->all());
-        return redirect()->route('coach.task.view', ['id' => $task->id])->with('success', 'Task created successfully!');
-    }
-
-    public function viewNotifications()
+    public function recieveNotifications()
     {
         $notifications = auth()->user()->notifications;
         return view('coach.notifications.view', compact('notifications'));
     }
 
-    public function createNotification(Request $request)
-    {
-        auth()->user()->notifications()->create($request->all());
-        return redirect()->route('coach.notifications.view')->with('success', 'Notification created successfully!');
-    }
-
-    public function assignTask(Request $request, $id)
+    public function createComment(Request $request)
     {
         $request->validate([
-            'task_id' => 'required|exists:tasks,id',
+            'content' => 'required|string|max:255',
         ]);
-
-        $task = Task::findOrFail($request->input('task_id'));
-        $user = User::findOrFail($id);
-
-        $task->user_id = $user->id;
-        $task->save();
-
-        return redirect()->back()->with('success', 'Task assigned to user successfully!');
+        
+        auth()->user()->comments()->create([
+            'content' => $request->content,
+        ]);
+        
+        return redirect()->back()->with('success', 'Comment created successfully!');
     }
-
-    public function removeTask(Request $request, $id)
+    
+    public function joinGroup(Request $request)
     {
         $request->validate([
-            'task_id' => 'required|exists:tasks,id',
+            'group_id' => 'required|exists:groups,id',
         ]);
-
-        $task = Task::findOrFail($request->input('task_id'));
-
-        if ($task->user_id == $id) {
-            $task->user_id = null;
-            $task->save();
-            return redirect()->back()->with('success', 'Task removed from user successfully!');
-        }
-
-        return redirect()->back()->with('error', 'Task does not belong to this user.');
+        
+        $group = Group::findOrFail($request->group_id);
+        auth()->user()->groups()->attach($group);
+        
+        return redirect()->back()->with('success', 'Joined group successfully!');
     }
-
+    public function leaveGroup(Request $request)
+    {
+        $request->validate([
+            'group_id' => 'required|exists:groups,id',
+        ]);
+        
+        $group = Group::findOrFail($request->group_id);
+        auth()->user()->groups()->detach($group);
+        
+        return redirect()->back()->with('success', 'Left group successfully!');
+    }
+    
     public function logout()
     {
         auth()->logout();

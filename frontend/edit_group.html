@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Group</title>
+</head>
+<body>
+    <header>
+        <h1>Edit Group</h1>
+        <p>Use the form below to edit the group details.</p>
+    </header>
+
+    <main>
+        <form action="/admin/group/{{ group.id }}/edit" method="POST">
+            <!-- Replace {{ group.id }} with the actual group ID -->
+            <label for="group_name">Group Name:</label>
+            <input type="text" id="group_name" name="group_name" value="{{ group.name }}" required>
+            <br><br>
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required>{{ group.description }}</textarea>
+            <br><br>
+
+            <button type="submit">Update Group</button>
+        </form>
+    </main>
+</body>
+</html>
