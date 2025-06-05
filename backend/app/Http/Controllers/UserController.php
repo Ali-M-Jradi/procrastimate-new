@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Task;
+use App\Models\Group;
 
 class UserController extends Controller
 {
     public function dashboard()
     {
-        // Get this patient's appointments
-        $tasks = Auth::user()->user->tasks()->get();
-        return view('user.dashboard', compact('task'));
+        $tasks = Auth::user()->tasks()->get();
+        return view('user.dashboard', compact('tasks'));
     }
 
     public function viewTask($id)
@@ -21,7 +23,7 @@ class UserController extends Controller
 
     public function updateTask(Request $request, $id)
     {
-        $task = Task::where('id', $id)->where('task_id', Auth::user()->user->id)->firstOrFail();
+        $task = Task::where('id', $id)->where('user_id', Auth::user()->id)->firstOrFail();
         $request->validate([
             'dueDate' => 'required|date',
         ]);
@@ -31,30 +33,29 @@ class UserController extends Controller
             'dueDate' => $request->dueDate,
             'isCompleted' => $request->isCompleted ? true : false,
         ]);
-        
         return redirect()->route('task.view', ['id' => $id])->with('success', 'Task updated successfully!');
     }
 
     public function deleteTask($id)
     {
-        $task = Task::where('id', $id)->where('user_id', Auth::user()->user->id)->firstOrFail();
+        $task = Task::where('id', $id)->where('user_id', Auth::user()->id)->firstOrFail();
         $task->delete();
-        return redirect()->route('user.dashboard')->with('success', 'Appointment
-        cancelled.');
+        return redirect()->route('dashboard')->with('success', 'Task cancelled.');
     }
 
     public function createTask(Request $request)
     {   
         $request->validate([
-        'user_id' => 'required|exists:user,id',
-        'dueDate' => 'required|date',
+            'dueDate' => 'required|date',
         ]);
         Task::create([
-        'user' => Auth::user()->user->id,
-        'dueDate' => $request->dueDate,
-        'isCompleted' => 'pending',
+            'user_id' => Auth::user()->id,
+            'title' => $request->title,
+            'description' => $request->description,
+            'dueDate' => $request->dueDate,
+            'isCompleted' => false,
         ]);
-        return redirect()->route('user.dashboard')->with('success', 'Task Created.');
+        return redirect()->route('dashboard')->with('success', 'Task Created.');
     }
 
     public function sendNotification(Request $request)
@@ -74,11 +75,9 @@ class UserController extends Controller
         $request->validate([
             'content' => 'required|string|max:255',
         ]);
-        
         auth()->user()->comments()->create([
             'content' => $request->content,
         ]);
-        
         return redirect()->back()->with('success', 'Comment created successfully!');
     }
     
@@ -87,21 +86,18 @@ class UserController extends Controller
         $request->validate([
             'group_id' => 'required|exists:groups,id',
         ]);
-        
         $group = Group::findOrFail($request->group_id);
         auth()->user()->groups()->attach($group);
-        
         return redirect()->back()->with('success', 'Joined group successfully!');
     }
+
     public function leaveGroup(Request $request)
     {
         $request->validate([
             'group_id' => 'required|exists:groups,id',
         ]);
-        
         $group = Group::findOrFail($request->group_id);
         auth()->user()->groups()->detach($group);
-        
         return redirect()->back()->with('success', 'Left group successfully!');
     }
 

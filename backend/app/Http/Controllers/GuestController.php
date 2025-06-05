@@ -51,4 +51,12 @@ class GuestController extends Controller
         auth()->login($user);
         return redirect()->route('dashboard')->with('success', 'Registration successful!');
     }
+
+    public function logout(Request $request)
+    {
+        auth()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('login');
+    }
 }

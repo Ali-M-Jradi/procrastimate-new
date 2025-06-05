@@ -47,13 +47,16 @@ class CoachController extends Controller
     public function createTask(Request $request)
     {   
         $request->validate([
-        'user_id' => 'required|exists:user,id',
-        'dueDate' => 'required|date',
+            'user_id' => 'required|exists:users,id',
+            'dueDate' => 'required|date',
         ]);
         Task::create([
-        'user' => Auth::user()->coach->id,
-        'dueDate' => $request->dueDate,
-        'isCompleted' => 'pending',
+            'user_id' => $request->user_id,
+            'coach_id' => Auth::user()->id,
+            'title' => $request->title,
+            'description' => $request->description,
+            'dueDate' => $request->dueDate,
+            'isCompleted' => false,
         ]);
         return redirect()->route('coach.dashboard')->with('success', 'Task Created.');
     }
@@ -110,5 +113,61 @@ class CoachController extends Controller
     {
         auth()->logout();
         return redirect()->route('homepage')->with('success', 'Logged out successfully!');
+    }
+
+    public function approveTask(Request $request, $id)
+    {
+        $task = Task::where('id', $id)->where('coach_id', Auth::user()->id)->firstOrFail();
+        $task->update(['isCompleted' => true]);
+        return redirect()->route('coach.dashboard')->with('success', 'Task approved successfully!');
+    }
+    
+    public function rejectTask(Request $request, $id)
+    {
+        $task = Task::where('id', $id)->where('coach_id', Auth::user()->id)->firstOrFail();
+        $task->update(['isCompleted' => false]);
+        return redirect()->route('coach.dashboard')->with('success', 'Task rejected successfully!');
+    }
+
+    public function createGroup(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+        ]);
+        
+        $group = auth()->user()->groups()->create([
+            'name' => $request->name,
+            'description' => $request->description,
+        ]);
+        
+        return redirect()->route('groups.view', ['id' => $group->id])->with('success', 'Group created successfully!');
+    }
+
+    public function viewGroup($id){
+        $group = auth()->user()->groups()->findOrFail($id);
+        return view('coach.group.view', compact('group'));
+    }
+
+    public function updateGroup(Request $request, $id)
+    {
+        $group = auth()->user()->groups()->findOrFail($id);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+        ]);
+        
+        $group->update([
+            'name' => $request->name,
+            'description' => $request->description,
+        ]);
+        
+        return redirect()->route('groups.view', ['id' => $id])->with('success', 'Group updated successfully!');
+    }
+
+    public function deleteGroup($id){
+        $group = auth()->user()->groups()->findOrFail($id);
+        $group->delete();
+        return redirect()->route('coach.dashboard')->with('success', 'Group deleted successfully!');
     }
 }
