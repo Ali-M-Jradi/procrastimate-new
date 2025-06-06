@@ -12,7 +12,10 @@
     </header>
 
     <main>
-        <form action="/create_task.html" method="POST">
+        <form action="/tasks/create" method="POST">
+            <!-- Example CSRF token for frameworks like Laravel -->
+            <!-- <input type="hidden" name="_token" value="{{ csrf_token() }}"> -->
+
             <label for="task_name">Task Name:</label>
             <input type="text" id="task_name" name="task_name" required>
 
@@ -22,11 +25,25 @@
             <label for="due_date">Due Date:</label>
             <input type="date" id="due_date" name="due_date">
 
+            <!-- Role-based assignment -->
+            <!-- Pseudo-code: if user is coach or admin, show user selection -->
+            <!-- Replace with your backend logic -->
+            <!-- {% if user.role == 'coach' or user.role == 'admin' %} -->
+            <div id="assign-user-section">
+                <label for="user_id">Assign to User:</label>
+                <select id="user_id" name="user_id" required>
+                    <!-- Populate this with users from your backend -->
+                    <!-- Example: -->
+                    <!-- {% for u in users %} -->
+                    <option value="1">User 1</option>
+                    <option value="2">User 2</option>
+                    <!-- {% endfor %} -->
+                </select>
+            </div>
+            <!-- {% endif %} -->
+
             <button type="submit">Create Task</button>
-            
         </form>
     </main>
-
- 
 </body>
 </html>

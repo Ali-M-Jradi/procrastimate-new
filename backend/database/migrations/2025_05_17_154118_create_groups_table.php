@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name')->default('user'); 
             $table->text('description')->nullable();
             $table->boolean('isPublic')->default(true);
-            $table->integer('created_by');
             $table->timestamps();
         });
     }

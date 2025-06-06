@@ -74,4 +74,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Report::class);
     }
+    public function groups()
+    {
+        return $this->belongsToMany(\App\Models\Group::class, 'group_user', 'user_id', 'group_id');
+    }
 }

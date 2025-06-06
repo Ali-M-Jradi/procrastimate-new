@@ -9,10 +9,17 @@ use App\Models\Group;
 
 class UserController extends Controller
 {
-    public function dashboard()
+    public function viewDashboard()
     {
-        $tasks = Auth::user()->tasks()->get();
-        return view('user.dashboard', compact('tasks'));
+        $user = Auth::user();
+        $tasks = $user->tasks;
+        $notifications = $user->notifications;
+        $comments = $user->comments;
+
+        // Use Eloquent relationship if available
+        $coach = $user->coach ?? null;
+
+        return view('user.user_dashboard', compact('user', 'tasks', 'notifications', 'comments', 'coach'));
     }
 
     public function viewTask($id)
@@ -40,7 +47,7 @@ class UserController extends Controller
     {
         $task = Task::where('id', $id)->where('user_id', Auth::user()->id)->firstOrFail();
         $task->delete();
-        return redirect()->route('dashboard')->with('success', 'Task cancelled.');
+        return redirect()->route('userDashboard')->with('success', 'Task cancelled.');
     }
 
     public function createTask(Request $request)
@@ -55,7 +62,7 @@ class UserController extends Controller
             'dueDate' => $request->dueDate,
             'isCompleted' => false,
         ]);
-        return redirect()->route('dashboard')->with('success', 'Task Created.');
+        return redirect()->route('userDashboard')->with('success', 'Task Created.');
     }
 
     public function sendNotification(Request $request)

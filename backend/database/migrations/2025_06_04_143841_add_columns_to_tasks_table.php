@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::table('tasks', function (Blueprint $table) {
             $table->foreignId('group_id')->constrained('groups')->onDelete('cascade');
-            $table->foreignId('coach_id')->constrained('coach')->onDelete('cascade');
-            $table->foreignId('admin_id')->constrained('admin')->onDelete('cascade');
+            $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
             
         });
     }

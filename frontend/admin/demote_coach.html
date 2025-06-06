@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demote Coach</title>
+</head>
+<body>
+    <h1>Demote Coach</h1>
+
+    <form method="POST" action="/demote_coach">
+        <label for="user_id">User ID:</label>
+        <input type="text" id="user_id" name="user_id" required>
+        <input type="hidden" name="new_role" value="user">
+        <button type="submit">Demote Coach</button>
+    </form>
+
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+    <p>After submitting the form, the selected coach's role will be changed to a regular user.</p>
+</body>
+</html>

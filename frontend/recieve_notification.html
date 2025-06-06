@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recieved Notifications</title>
+    <title>Received Notifications</title>
 </head>
 <body>
     <header>
@@ -11,18 +11,35 @@
     </header>
 
     <main>
+        <!-- Role-based notification heading -->
+        {% if user.role == 'admin' %}
+            <h2>Admin Notifications</h2>
+        {% elseif user.role == 'coach' %}
+            <h2>Coach Notifications</h2>
+        {% else %}
+            <h2>User Notifications</h2>
+        {% endif %}
+
         <ul>
             {% for notification in notifications %}
+                {% if notification.role == user.role or notification.role == 'all' %}
                 <li>
                     <strong>{{ notification.sender }}:</strong> {{ notification.message }}
                     <span>at {{ notification.timestamp }}</span>
                 </li>
+                {% endif %}
             {% endfor %}
         </ul>
     </main>
 
     <footer>
-        <p><a href="/user_dashboard.html">Back to Dashboard</a></p>
+        {% if user.role == 'admin' %}
+            <p><a href="/admin_dashboard.html">Back to Dashboard</a></p>
+        {% elseif user.role == 'coach' %}
+            <p><a href="/coach_dashboard.html">Back to Dashboard</a></p>
+        {% else %}
+            <p><a href="/user_dashboard.html">Back to Dashboard</a></p>
+        {% endif %}
     </footer>
 </body>
 </html>

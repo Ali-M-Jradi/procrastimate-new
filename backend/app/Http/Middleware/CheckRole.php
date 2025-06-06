@@ -14,12 +14,13 @@ class CheckRole
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next,$role): Response
+    public function handle(Request $request, Closure $next, $roles): Response
     {
         if (!Auth::check()) {
             return redirect()->route('login');
         }
-        if (Auth::user()->role !== $role) {
+        $roleList = explode(',', $roles);
+        if (!in_array(Auth::user()->role, $roleList)) {
             abort(403);
         }
         return $next($request);

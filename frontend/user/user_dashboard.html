@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+</head>
+<body>
+    <header>
+        <h1>Welcome, {{ user.name }}</h1>
+        <p>Manage your tasks and track your time effectively.</p>
+        <nav>
+            <ul>
+                <li><a href="user_dashboard.html">Dashboard</a></li>
+                <li><a href="#tasks">View Tasks</a></li>
+                <li><a href="#notifications">View Notifications</a></li>
+                <li><a href="#comments">View Comments</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="tasks">
+            <h2>Your Tasks</h2>
+            <ul>
+                {% for task in tasks %}
+                    <li>{{ task.name }} - {{ task.status }}</li>
+                {% endfor %}
+                <li><a href="create_task.html">Create Task</a></li>
+            </ul>
+        </section>
+
+        <section id="notifications">
+            <h2>Notifications</h2>
+            <ul>
+                {% for notification in notifications %}
+                    <li>{{ notification.message }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section id="comments">
+            <h2>Comments</h2>
+            <ul>
+                {% for comment in comments %}
+                    <li>{{ comment.content }} - {{ comment.author }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </main>
+</body>
+</html>

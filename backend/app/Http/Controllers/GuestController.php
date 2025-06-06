@@ -8,7 +8,7 @@ class GuestController extends Controller
 {
     public function index()
     {
-        return view('homepage');
+        return view('index');
     }
 
     public function showLoginForm()
@@ -49,7 +49,7 @@ class GuestController extends Controller
         $user->role = $request->input('role');
         $user->save();
         auth()->login($user);
-        return redirect()->route('dashboard')->with('success', 'Registration successful!');
+        return redirect()->route('userDashboard')->with('success', 'Registration successful!');
     }
 
     public function logout(Request $request)

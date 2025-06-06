@@ -14,20 +14,20 @@ Route::get('/login', [GuestController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [GuestController::class, 'login']);
 Route::get('/register', [GuestController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [GuestController::class, 'register']);
-Route::get('/homepage', [GuestController::class, 'index'])->name('homepage');
+Route::get('/index', [GuestController::class, 'index'])->name('homepage');
 Route::post('/logout', [GuestController::class, 'logout'])->name('logout');
 
 // User Routes
 Route::middleware(['auth', 'role:user'])->group(function () {
-    Route::get('/dashboard', [UserController::class, 'viewDashboard'])->name('dashboard');
+    Route::get('/user/dashboard', [UserController::class, 'viewDashboard'])->name('userDashboard');
     Route::get('/task/{id}', [UserController::class, 'viewTask'])->name('task.view');
     Route::put('/task/{id}/update', [UserController::class, 'updateTask'])->name('task.update'); // changed to PUT
     Route::get('/task/{id}/delete', [UserController::class, 'deleteTask'])->name('task.delete');
     Route::get('/task/create', [UserController::class, 'createTask'])->name('task.create');
     Route::post('/task/store', [UserController::class, 'storeTask'])->name('task.store');
-    Route::get('/my-notifications', [UserController::class, 'viewNotifications'])->name('notifications.view');
-    Route::post('/create-notification', [UserController::class, 'createNotification'])->name('notification.create');
-    Route::post('/comment/store', [UserController::class, 'storeComment'])->name('comment.store');
+    Route::get('/my-notifications', [UserController::class, 'recieveNotifications'])->name('notifications.view');
+    Route::post('/create-notification', [UserController::class, 'sendNotification'])->name('notification.create');
+    Route::post('/comment/store', [UserController::class, 'createComment'])->name('comment.store');
     Route::post('/group/join', [UserController::class, 'joinGroup'])->name('group.join');
     Route::post('/group/leave', [UserController::class, 'leaveGroup'])->name('group.leave');
 });
