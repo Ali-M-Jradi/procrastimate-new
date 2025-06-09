@@ -5,20 +5,55 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Group;
+use App\Models\Comment;
+use App\Models\Notification;
+use App\Models\Coach;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class CoachController extends Controller
 {
-    public function dashboard()
+    public function showGroupCreationForm()
     {
-        // Get this patient's appointments
-        $tasks = Auth::user()->coach->tasks()->get();
-        return view('caoch.dashboard', compact('task'));
+        return view('group.create_group');
+    }
+
+    public function viewDashboard()
+    {
+        $user = auth()->user();
+        
+        // Get tasks where the current user is the coach
+        $tasks = Task::where('coach_id', $user->id)
+            ->with(['user', 'comments.user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        // Get groups where the user is a member using the correct pivot table
+        $groups = $user->groups()
+            ->with('users')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Get notifications for this coach using correct column names from schema
+        $notifications = Notification::where('to_user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Get comments directly through tasks relationship
+        $comments = Comment::select('id', 'user_id', 'task_id', 'comment', 'created_at')
+            ->whereIn('task_id', $tasks->pluck('id'))
+            ->with(['user:id,name,email', 'task:id,title'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return view('dashboard.coachDashboard', compact('user', 'groups', 'tasks', 'notifications', 'comments'));
     }
 
     public function viewTask($id)
     {   
         $task = Task::findOrFail($id);
-        return view('coach.task.view', compact('task'));
+        return view('task.view', compact('task'));
     }
 
     public function updateTask(Request $request, $id)
@@ -132,16 +167,19 @@ class CoachController extends Controller
     public function createGroup(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:groups',
             'description' => 'nullable|string|max:1000',
         ]);
         
-        $group = auth()->user()->groups()->create([
+        $group = Group::create([
             'name' => $request->name,
             'description' => $request->description,
         ]);
         
-        return redirect()->route('groups.view', ['id' => $group->id])->with('success', 'Group created successfully!');
+        // Add the creator as the first member
+        auth()->user()->groups()->attach($group->id);
+        
+        return redirect()->route('coach.dashboard')->with('success', 'Group created successfully!');
     }
 
     public function viewGroup($id){

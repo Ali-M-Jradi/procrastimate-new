@@ -1,30 +1,37 @@
 @extends('layouts.app')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/app.css') }}">
+@endpush
+
 @section('content')
 <div class="container">
-    <h2>Login</h2>
-    @if ($errors->any())
-        <div style="color: red;">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
-        <div >
-            <label for="email">Email:</label>
-            <input id="email" type="email" name="email" required autofocus class="form-control" value="{{ old('email') }}">
-        </div>
-        <div >
-            <label for="password">Password:</label>
-            <input id="password" type="password" name="password" required class="form-control">
-        </div>
-        <button type="submit" class="btn btn-primary">Login</button>
-    </form>
-</div>       
- <p class="mt-3">Don't have an account? <a href="{{ route('register') }}">Register here</a>.</p>
-
+    <section class="auth-section">
+        <h2>Login</h2>
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        <form method="POST" action="{{ route('login') }}">
+            @csrf
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" class="form-control" value="{{ old('email') }}" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password" class="form-control" required>
+            </div>
+            <div class="task-actions">
+                <button type="submit" class="btn btn-primary">Login</button>
+                <a href="{{ route('register') }}" class="btn btn-success">Register</a>
+            </div>
+        </form>
+    </section>
+</div>
 @endsection

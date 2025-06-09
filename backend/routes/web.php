@@ -5,73 +5,105 @@ use App\Http\Controllers\GuestController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CoachController;
 use App\Http\Controllers\AdminController;
+use App\Http\Middleware\CheckRole;
+
 
 // Auth routes (public)
-Route::get('/', function () {
-    return ['Laravel' => app()->version()];
-});
+// Route::get('/', function () {
+//     return ['Laravel' => app()->version()];
+// });
+
 Route::get('/login', [GuestController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [GuestController::class, 'login']);
 Route::get('/register', [GuestController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [GuestController::class, 'register']);
-Route::get('/index', [GuestController::class, 'index'])->name('homepage');
+Route::get('/', [GuestController::class, 'index'])->name('homepage');
 Route::post('/logout', [GuestController::class, 'logout'])->name('logout');
 
-// User Routes
-Route::middleware(['auth', 'role:user'])->group(function () {
+// User Dashboard
+// Route::middleware(['auth', 'role:user'])->group(function () {
     Route::get('/user/dashboard', [UserController::class, 'viewDashboard'])->name('userDashboard');
-    Route::get('/task/{id}', [UserController::class, 'viewTask'])->name('task.view');
-    Route::put('/task/{id}/update', [UserController::class, 'updateTask'])->name('task.update'); // changed to PUT
-    Route::get('/task/{id}/delete', [UserController::class, 'deleteTask'])->name('task.delete');
-    Route::get('/task/create', [UserController::class, 'createTask'])->name('task.create');
-    Route::post('/task/store', [UserController::class, 'storeTask'])->name('task.store');
-    Route::get('/my-notifications', [UserController::class, 'recieveNotifications'])->name('notifications.view');
-    Route::post('/create-notification', [UserController::class, 'sendNotification'])->name('notification.create');
-    Route::post('/comment/store', [UserController::class, 'createComment'])->name('comment.store');
-    Route::post('/group/join', [UserController::class, 'joinGroup'])->name('group.join');
-    Route::post('/group/leave', [UserController::class, 'leaveGroup'])->name('group.leave');
-});
+// });
 
-// Coach Routes
-Route::middleware(['auth', 'role:coach'])->group(function () {
-    Route::get('/coach-dashboard', [CoachController::class, 'viewDashboard'])->name('coach.dashboard');
-    Route::get('/coach/task/{id}', [CoachController::class, 'viewTask'])->name('coach.task.view');
-    Route::put('/coach/task/{id}/update', [CoachController::class, 'updateTask'])->name('coach.task.update'); // changed to PUT
-    Route::get('/coach/task/{id}/delete', [CoachController::class, 'deleteTask'])->name('coach.task.delete');
-    Route::get('/coach/task/create', [CoachController::class, 'createTask'])->name('coach.task.create');
-    Route::post('/coach/task/store', [CoachController::class, 'storeTask'])->name('coach.task.store');
-    Route::post('/coach/user/{id}/assign-task', [CoachController::class, 'assignTask'])->name('coach.user.assign.task');
-    Route::post('/coach/user/{id}/remove-task', [CoachController::class, 'removeTask'])->name('coach.user.remove.task');
-    Route::get('/coach/my-notifications', [CoachController::class, 'viewNotifications'])->name('coach.notifications.view');
-    Route::post('/coach/create-notification', [CoachController::class, 'createNotification'])->name('coach.notification.create');
-    Route::post('/coach/comment/store', [CoachController::class, 'storeComment'])->name('coach.comment.store');
-    Route::post('/coach/group/join', [CoachController::class, 'joinGroup'])->name('coach.group.join');
-    Route::post('/coach/group/leave', [CoachController::class, 'leaveGroup'])->name('coach.group.leave');
-    Route::post('/coach/logout', [CoachController::class, 'logout'])->name('coach.logout');
-});
+// Coach Dashboard
+// Route::middleware(['auth', 'role:coach'])->group(function () {
+    Route::get('/coach/dashboard', [CoachController::class, 'viewDashboard'])->name('coach.dashboard');
+// });
 
-// Admin Routes
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin-dashboard', [AdminController::class, 'viewDashboard'])->name('admin.dashboard');
-    Route::get('/admin/task/{id}', [AdminController::class, 'viewTask'])->name('admin.task.view');
-    Route::put('/admin/task/{id}/update', [AdminController::class, 'updateTask'])->name('admin.task.update'); // changed to PUT
-    Route::get('/admin/task/{id}/delete', [AdminController::class, 'deleteTask'])->name('admin.task.delete');
-    Route::get('/admin/task/create', [AdminController::class, 'createTask'])->name('admin.task.create');
-    Route::post('/admin/task/store', [AdminController::class, 'storeTask'])->name('admin.task.store');
-    Route::post('/admin/user/{id}/assign-task', [AdminController::class, 'assignTask'])->name('admin.user.assign.task');
-    Route::post('/admin/user/{id}/remove-task', [AdminController::class, 'removeTask'])->name('admin.user.remove.task');
-    Route::get('/admin/my-notifications', [AdminController::class, 'viewNotifications'])->name('admin.notifications.view');
-    Route::post('/admin/create-notification', [AdminController::class, 'createNotification'])->name('admin.notification.create');
-    Route::post('/admin/comment/store', [AdminController::class, 'storeComment'])->name('admin.comment.store');
-    Route::post('/admin/group/join', [AdminController::class, 'joinGroup'])->name('admin.group.join');
-    Route::post('/admin/group/leave', [AdminController::class, 'leaveGroup'])->name('admin.group.leave');
-    Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
-    Route::put('/admin/user/{id}/update', [AdminController::class, 'updateUser'])->name('admin.user.update'); // changed to PUT
-    Route::get('/admin/user/{id}/delete', [AdminController::class, 'deleteUser'])->name('admin.user.delete');
-    Route::get('/admin/user/create', [AdminController::class, 'createUser'])->name('admin.user.create');
-    Route::post('/admin/user/{id}/promote-user', [AdminController::class, 'promoteUser'])->name('admin.user.promote');
+// Coach and Admin shared routes
+// Route::middleware(['auth', 'role:coach|admin'])->group(function () {
+    // Task approval/decline
+    Route::get('/task/{id}/showApprovalForm', [CoachController::class, 'showApprovalForm'])->name('task.approvalForm');
+    Route::post('/task/{id}/approve', [CoachController::class, 'approveTask'])->name('task.approve');
+    Route::get('/task/{id}/showDeclineForm', [CoachController::class, 'showDeclineForm'])->name('task.declineForm');
+    Route::post('/task/{id}/decline', [CoachController::class, 'declineTask'])->name('task.decline');
+
+    // Group creation
+    // Group creation (coach/admin only)
+    // Route::middleware(['auth', 'role:coach,admin'])->group(function () {
+        Route::get('/groups/create', [CoachController::class, 'showGroupCreationForm'])->name('groups.create');
+        Route::post('/groups', [CoachController::class, 'createGroup'])->name('groups.store');
+    // });
+    // Group update
+    Route::get('/group/{id}/update', [CoachController::class, 'showGroupUpdateForm'])->name('group.updateForm');
+    Route::post('/group/{id}/update', [CoachController::class, 'updateGroup'])->name('group.update');
+    // Group delete
+    Route::get('/group/{id}/delete', [CoachController::class, 'showGroupDeleteForm'])->name('group.deleteForm');
+    Route::post('/group/{id}/delete', [CoachController::class, 'deleteGroup'])->name('group.delete');
+    Route::get('/groups/{id}/edit', [App\Http\Controllers\CoachController::class, 'updateGroup'])->name('groups.edit');
+    Route::delete('/groups/{id}', [App\Http\Controllers\CoachController::class, 'deleteGroup'])->name('groups.destroy');
+// });
+
+// Admin-only management routes
+// Route::middleware(['auth', 'role:admin'])->group(function () {
+    // Admin dashboard
+    Route::get('/admin/dashboard', [AdminController::class, 'viewDashboard'])->name('admin.dashboard');
+
+    // User creation
+    Route::get('/admin/user/create', [AdminController::class, 'showUserCreationForm'])->name('admin.user.createForm');
+    Route::post('/admin/user/create', [AdminController::class, 'createUser'])->name('admin.user.create');
+    // User update
+    Route::get('/admin/user/{id}/update', [AdminController::class, 'showUpdateUserForm'])->name('admin.user.updateForm');
+    Route::put('/admin/user/{id}/update', [AdminController::class, 'updateUser'])->name('admin.user.update');
+    // User delete
+    Route::get('/admin/user/{id}/delete', [AdminController::class, 'showDeleteUserForm'])->name('admin.user.deleteForm');
+    Route::post('/admin/user/{id}/delete', [AdminController::class, 'deleteUser'])->name('admin.user.delete');
+
+    // Promote/demote
+    Route::get('/admin/user/{id}/promote', [AdminController::class, 'showPromoteUserForm'])->name('admin.user.promoteForm');
+    Route::post('/admin/user/{id}/promote', [AdminController::class, 'promoteUser'])->name('admin.user.promote');
+    Route::get('/admin/user/{id}/demote-coach', [AdminController::class, 'showDemoteCoachForm'])->name('admin.coach.demoteForm');
     Route::post('/admin/user/{id}/demote-coach', [AdminController::class, 'demoteCoach'])->name('admin.coach.demote');
-    Route::post('/admin/create-coach', [AdminController::class, 'createCoach'])->name('admin.create.coach');
-    Route::get('/admin/coach/{id}/delete', [AdminController::class, 'deleteCoach'])->name('admin.coach.delete');
-    Route::put('/admin/coach/{id}/update', [AdminController::class, 'updateCoach'])->name('admin.coach.update'); // changed to PUT
-});
+
+    // Coach creation
+    Route::get('/admin/coach/create', [AdminController::class, 'showCoachCreationForm'])->name('admin.coach.createForm');
+    Route::post('/admin/coach/create', [AdminController::class, 'createCoach'])->name('admin.create.coach');
+    // Coach update
+    Route::get('/admin/coach/{id}/update', [AdminController::class, 'showUpdateCoachForm'])->name('admin.coach.updateForm');
+    Route::put('/admin/coach/{id}/update', [AdminController::class, 'updateCoach'])->name('admin.coach.update');
+    // Coach delete
+    Route::get('/admin/coach/{id}/delete', [AdminController::class, 'showDeleteCoachForm'])->name('admin.coach.deleteForm');
+    Route::post('/admin/coach/{id}/delete', [AdminController::class, 'deleteCoach'])->name('admin.coach.delete');
+// });
+
+// Shared routes for all authenticated users (user, coach, admin)
+// Route::middleware(['auth'])->group(function () {
+    // Shared task routes
+    Route::get('/task/create', [UserController::class, 'showTaskCreationForm'])->name('task.createForm');
+    Route::post('/task/create', [UserController::class, 'createTask'])->name('task.create');
+    Route::get('/task/{id}/update', [UserController::class, 'showTaskUpdateForm'])->name('task.updateForm');
+    Route::post('/task/{id}/update', [UserController::class, 'updateTask'])->name('task.update');
+    Route::delete('/task/{id}/delete', [UserController::class, 'deleteTask'])->name('task.delete');
+
+    // Shared notification routes
+    Route::get('/my-notifications', [UserController::class, 'recieveNotifications'])->name('notifications.view');
+    Route::post('/create-notification', [UserController::class, 'sendNotification'])->name('notification.send');
+    Route::get('/create-notification', [UserController::class, 'showNotificationForm'])->name('notification.createForm');
+
+    // Shared comment and group routes
+    Route::post('/comment/create', [UserController::class, 'createComment'])->name('comment.create');
+    Route::get('/comment/creationForm', [UserController::class, 'showCommentCreationForm'])->name('comment.createForm');
+    Route::post('/group/join', [UserController::class, 'joinGroup'])->name('group.join');
+    Route::get('/group/joinForm', [UserController::class, 'showGroupJoinForm'])->name('group.joinForm');
+    Route::post('/group/leave', [UserController::class, 'leaveGroup'])->name('group.leave');
+// });

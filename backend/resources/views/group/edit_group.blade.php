@@ -11,3 +11,7 @@
         <button type="submit">Update Group</button>
     </form>
 @endsection
+
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/auth-theme.css') }}">
+@endpush

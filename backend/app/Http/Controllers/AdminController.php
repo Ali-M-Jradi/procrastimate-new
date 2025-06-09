@@ -2,176 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Task;
+use App\Models\User;
+use App\Models\Group;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-    public function dashboard()
+    public function viewDashboard()
     {
-        $tasks = Task::all(); // Or filter as needed for admin
-        return view('admin.dashboard', compact('tasks'));
-    }
-
-    public function viewTask($id)
-    {   
-        $task = Task::findOrFail($id);
-        return view('coach.task.view', compact('task'));
-    }
-
-    public function updateTask(Request $request, $id)
-    {
-        $task = Task::findOrFail($id);
-        $request->validate([
-            'dueDate' => 'required|date',
-        ]);
-        $task->update([
-            'title' => $request->title,
-            'description' => $request->description,
-            'dueDate' => $request->dueDate,
-            'isCompleted' => $request->isCompleted ? true : false,
-        ]);
-        return redirect()->route('admin.task.view', ['id' => $id])->with('success', 'Task updated successfully!');
-    }
-
-    public function deleteTask($id)
-    {
-        $task = Task::findOrFail($id);
-        $task->delete();
-        return redirect()->route('admin.dashboard')->with('success', 'Task deleted.');
-    }
-
-    public function createTask(Request $request)
-    {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'dueDate' => 'required|date',
-        ]);
-        Task::create([
-            'user_id' => $request->user_id,
-            'admin_id' => Auth::user()->id, // if you track admin
-            'title' => $request->title,
-            'description' => $request->description,
-            'dueDate' => $request->dueDate,
-            'isCompleted' => false,
-        ]);
-        return redirect()->route('admin.dashboard')->with('success', 'Task Created.');
-    }
-
-    public function sendNotification(Request $request)
-    {
-        auth()->user()->notifications()->create($request->all());
-        return redirect()->route('notifications.view')->with('success', 'Notification created successfully!');
-    }
-
-    public function recieveNotifications()
-    {
-        $notifications = auth()->user()->notifications;
-        return view('admin.notifications.view', compact('notifications'));
-    }
-
-    public function createComment(Request $request)
-    {
-        $request->validate([
-            'content' => 'required|string|max:255',
-        ]);
+        $tasks = Task::all();
+        $users = User::where('role', '!=', 'admin')->get();
+        $groups = Group::all();
+        $coaches = User::where('role', 'coach')->get();
         
-        auth()->user()->comments()->create([
-            'content' => $request->content,
-        ]);
-        
-        return redirect()->back()->with('success', 'Comment created successfully!');
-    }
-    
-    public function joinGroup(Request $request)
-    {
-        $request->validate([
-            'group_id' => 'required|exists:groups,id',
-        ]);
-        
-        $group = Group::findOrFail($request->group_id);
-        auth()->user()->groups()->attach($group);
-        
-        return redirect()->back()->with('success', 'Joined group successfully!');
-    }
-    public function leaveGroup(Request $request)
-    {
-        $request->validate([
-            'group_id' => 'required|exists:groups,id',
-        ]);
-        
-        $group = Group::findOrFail($request->group_id);
-        auth()->user()->groups()->detach($group);
-        
-        return redirect()->back()->with('success', 'Left group successfully!');
-    }
-    
-    public function logout()
-    {
-        auth()->logout();
-        return redirect()->route('homepage')->with('success', 'Logged out successfully!');
+        return view('dashboard.adminDashboard', compact('tasks', 'users', 'groups', 'coaches'));
     }
 
-    public function approveTask(Request $request, $id)
+    // User Management Methods
+    public function showUserCreationForm()
     {
-        $task = Task::where('id', $id)->where('user_id', Auth::user()->admin->id)->firstOrFail();
-        $task->update(['isCompleted' => true]);
-        return redirect()->route('admin.dashboard')->with('success', 'Task approved successfully!');
-    }
-    
-    public function rejectTask(Request $request, $id)
-    {
-        $task = Task::where('id', $id)->where('user_id', Auth::user()->admin->id)->firstOrFail();
-        $task->update(['isCompleted' => false]);
-        return redirect()->route('admin.dashboard')->with('success', 'Task rejected successfully!');
-    }
-
-    public function createGroup(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-        ]);
-        
-        $group = auth()->user()->groups()->create([
-            'name' => $request->name,
-            'description' => $request->description,
-        ]);
-        
-        return redirect()->route('groups.view', ['id' => $group->id])->with('success', 'Group created successfully!');
-    }
-
-    public function viewGroup($id){
-        $group = auth()->user()->groups()->findOrFail($id);
-        return view('admin.group.view', compact('group'));
-    }
-
-    public function updateGroup(Request $request, $id)
-    {
-        $group = auth()->user()->groups()->findOrFail($id);
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-        ]);
-        
-        $group->update([
-            'name' => $request->name,
-            'description' => $request->description,
-        ]);
-        
-        return redirect()->route('groups.view', ['id' => $id])->with('success', 'Group updated successfully!');
-    }
-
-    public function deleteGroup($id){
-        $group = auth()->user()->groups()->findOrFail($id);
-        $group->delete();
-        return redirect()->route('admin.dashboard')->with('success', 'Group deleted successfully!');
-    }
-
-    public function deleteComment($id)
-    {
-        $comment = auth()->user()->comments()->findOrFail($id);
-        $comment->delete();
-        return redirect()->back()->with('success', 'Comment deleted successfully!');
+        return view('admin.user.create');
     }
 
     public function createUser(Request $request)
@@ -180,21 +33,24 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|in:user,coach',
         ]);
         
-        $user = User::create([
+        User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => bcrypt($request->password),
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
         ]);
         
-        return redirect()->route('admin.dashboard')->with('success', 'User created successfully!');
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'User created successfully!');
     }
 
-    public function viewUser($id)
+    public function showUpdateUserForm($id)
     {
         $user = User::findOrFail($id);
-        return view('admin.user.view', compact('user'));
+        return view('admin.user.edit', compact('user'));
     }
 
     public function updateUser(Request $request, $id)
@@ -203,36 +59,131 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => 'required|in:user,coach',
         ]);
         
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
+            'role' => $request->role,
         ]);
         
-        return redirect()->route('admin.user.view', ['id' => $id])->with('success', 'User updated successfully!');
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'User updated successfully!');
+    }
+
+    public function showDeleteUserForm($id)
+    {
+        $user = User::findOrFail($id);
+        return view('admin.user.delete', compact('user'));
     }
 
     public function deleteUser($id)
     {
+        if ($id === Auth::id()) {
+            return redirect()->back()
+                ->withErrors(['error' => 'You cannot delete your own admin account.']);
+        }
+
         $user = User::findOrFail($id);
         $user->delete();
-        return redirect()->route('admin.dashboard')->with('success', 'User deleted successfully!');
+        
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'User deleted successfully!');
     }
 
-    public function demoteCoachToUser($id)
+    // Coach Management Methods
+    public function showPromoteUserForm($id)
     {
-        $coach = User::findOrFail($id);
-        $coach->role = 'user'; 
-        $coach->save();
-        return redirect()->route('admin.dashboard')->with('success', 'Coach demoted successfully!');
+        $user = User::where('role', 'user')->findOrFail($id);
+        return view('admin.user.promote', compact('user'));
     }
 
-    public function promoteUserToCoach($id)
+    public function promoteUser($id)
     {
-        $user = User::findOrFail($id);
-        $user->role = 'coach'; 
+        $user = User::where('role', 'user')->findOrFail($id);
+        $user->role = 'coach';
         $user->save();
-        return redirect()->route('admin.dashboard')->with('success', 'User promoted to coach successfully!');
+        
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'User promoted to coach successfully!');
+    }
+
+    public function showDemoteCoachForm($id)
+    {
+        $coach = User::where('role', 'coach')->findOrFail($id);
+        return view('admin.coach.demote', compact('coach'));
+    }
+
+    public function demoteCoach($id)
+    {
+        $coach = User::where('role', 'coach')->findOrFail($id);
+        $coach->role = 'user';
+        $coach->save();
+        
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'Coach demoted to user successfully!');
+    }
+
+    public function showCoachCreationForm()
+    {
+        return view('admin.coach.create');
+    }
+
+    public function createCoach(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+        
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'coach',
+        ]);
+        
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'Coach created successfully!');
+    }
+
+    public function showUpdateCoachForm($id)
+    {
+        $coach = User::where('role', 'coach')->findOrFail($id);
+        return view('admin.coach.edit', compact('coach'));
+    }
+
+    public function updateCoach(Request $request, $id)
+    {
+        $coach = User::where('role', 'coach')->findOrFail($id);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $coach->id,
+        ]);
+        
+        $coach->update([
+            'name' => $request->name,
+            'email' => $request->email,
+        ]);
+        
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'Coach updated successfully!');
+    }
+
+    public function showDeleteCoachForm($id)
+    {
+        $coach = User::where('role', 'coach')->findOrFail($id);
+        return view('admin.coach.delete', compact('coach'));
+    }
+
+    public function deleteCoach($id)
+    {
+        $coach = User::where('role', 'coach')->findOrFail($id);
+        $coach->delete();
+        
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'Coach deleted successfully!');
     }
 }

@@ -58,14 +58,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(Group_User::class);
     }
-    public function tasksAssignedTo()
+    public function tasks()
     {
-        return $this->hasMany(Task::class, 'assigned_to');
+    return $this->hasMany(Task::class, 'user_id');
     }
-    public function tasksAssignedBy()
-    {
-        return $this->hasMany(Task::class, 'assigned_by');
-    }
+
     public function comments()
     {
         return $this->hasMany(Comment::class);

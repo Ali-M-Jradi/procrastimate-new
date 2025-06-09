@@ -12,16 +12,15 @@ class Notification extends Model
     protected $table = 'notifications';
 
     protected $fillable = [
-        'from_user_id',
         'to_user_id',
         'message',
+        'read',
+        'type',
+        'notifiable_type',
+        'notifiable_id',
+        'data',
+        'read_at',
     ];
-
-    // Relationship: sender
-    public function fromUser()
-    {
-        return $this->belongsTo(User::class, 'from_user_id');
-    }
 
     // Relationship: recipient
     public function toUser()

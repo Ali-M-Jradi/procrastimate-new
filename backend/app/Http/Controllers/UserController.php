@@ -12,6 +12,7 @@ class UserController extends Controller
     public function viewDashboard()
     {
         $user = Auth::user();
+        $user->load('groups'); // Eager load the groups relationship
         $tasks = $user->tasks;
         $notifications = $user->notifications;
         $comments = $user->comments;
@@ -19,44 +20,24 @@ class UserController extends Controller
         // Use Eloquent relationship if available
         $coach = $user->coach ?? null;
 
-        return view('user.user_dashboard', compact('user', 'tasks', 'notifications', 'comments', 'coach'));
+        return view('dashboard.userDashboard', compact('user', 'tasks', 'notifications', 'comments', 'coach'));
     }
 
-    public function viewTask($id)
-    {   
-        $task = Task::findOrFail($id);
-        return view('user.task.view', compact('task'));
-    }
-
-    public function updateTask(Request $request, $id)
+    public function showTaskCreationForm()
     {
-        $task = Task::where('id', $id)->where('user_id', Auth::user()->id)->firstOrFail();
-        $request->validate([
-            'dueDate' => 'required|date',
-        ]);
-        $task->update([
-            'title' => $request->title,
-            'description' => $request->description,
-            'dueDate' => $request->dueDate,
-            'isCompleted' => $request->isCompleted ? true : false,
-        ]);
-        return redirect()->route('task.view', ['id' => $id])->with('success', 'Task updated successfully!');
-    }
-
-    public function deleteTask($id)
-    {
-        $task = Task::where('id', $id)->where('user_id', Auth::user()->id)->firstOrFail();
-        $task->delete();
-        return redirect()->route('userDashboard')->with('success', 'Task cancelled.');
+        return view('task.create');
     }
 
     public function createTask(Request $request)
-    {   
+    {
         $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string|max:1000',
             'dueDate' => 'required|date',
         ]);
-        Task::create([
-            'user_id' => Auth::user()->id,
+        
+        $task = Task::create([
+            'user_id' => auth()->id(),
             'title' => $request->title,
             'description' => $request->description,
             'dueDate' => $request->dueDate,
@@ -65,16 +46,57 @@ class UserController extends Controller
         return redirect()->route('userDashboard')->with('success', 'Task Created.');
     }
 
-    public function sendNotification(Request $request)
+    public function showTaskUpdateForm($id)
     {
-        auth()->user()->notifications()->create($request->all());
-        return redirect()->route('notifications.view')->with('success', 'Notification created successfully!');
+        $task = Task::where('user_id', auth()->id())->findOrFail($id);
+        return view('task.update', compact('task'));
+    }
+
+    public function updateTask(Request $request, $id)
+    {
+        $task = Task::where('user_id', auth()->id())->findOrFail($id);
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string|max:1000',
+            'dueDate' => 'required|date',
+        ]);
+        $task->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'dueDate' => $request->dueDate,
+        ]);
+        return redirect()->route('userDashboard')->with('success', 'Task updated successfully!');
+    }
+
+    public function deleteTask($id)
+    {
+        $task = Task::where('user_id', auth()->id())->findOrFail($id);
+        $task->delete();
+        return redirect()->route('userDashboard')->with('success', 'Task cancelled.');
     }
 
     public function recieveNotifications()
     {
         $notifications = auth()->user()->notifications;
-        return view('user.notifications.view', compact('notifications'));
+        return view('notifications.index', compact('notifications'));
+    }
+
+    public function showNotificationForm()
+    {
+        return view('notifications.create');
+    }
+
+    public function sendNotification(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'message' => 'required|string|max:1000',
+        ]);
+        auth()->user()->notifications()->create([
+            'title' => $request->title,
+            'message' => $request->message,
+        ]);
+        return redirect()->route('notifications.view')->with('success', 'Notification created successfully!');
     }
 
     public function createComment(Request $request)
@@ -87,7 +109,12 @@ class UserController extends Controller
         ]);
         return redirect()->back()->with('success', 'Comment created successfully!');
     }
-    
+
+    public function showCommentCreationForm()
+    {
+        return view('comment.create_comment');
+    }
+
     public function joinGroup(Request $request)
     {
         $request->validate([
@@ -95,7 +122,7 @@ class UserController extends Controller
         ]);
         $group = Group::findOrFail($request->group_id);
         auth()->user()->groups()->attach($group);
-        return redirect()->back()->with('success', 'Joined group successfully!');
+        return redirect()->route('userDashboard')->with('success', 'Joined group successfully!');
     }
 
     public function leaveGroup(Request $request)
@@ -105,12 +132,18 @@ class UserController extends Controller
         ]);
         $group = Group::findOrFail($request->group_id);
         auth()->user()->groups()->detach($group);
-        return redirect()->back()->with('success', 'Left group successfully!');
+        return redirect()->route('userDashboard')->with('success', 'Left group successfully!');
     }
 
     public function logout()
     {
         auth()->logout();
         return redirect()->route('homepage')->with('success', 'Logged out successfully!');
+    }
+
+    public function showGroupJoinForm()
+    {
+        $groups = Group::all();
+        return view('group.join_groups', compact('groups'));
     }
 }

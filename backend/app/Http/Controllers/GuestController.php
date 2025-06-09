@@ -23,7 +23,22 @@ class GuestController extends Controller
             'password' => 'required|min:6',
         ]);
         if (auth()->attempt($request->only('email', 'password'))) {
-            return redirect()->intended('dashboard');
+            $request->session()->regenerate();
+            // For tests, return no content if requested
+            if ($request->expectsJson() || $request->wantsJson()) {
+                return response()->noContent();
+            }
+            // Redirect to dashboard based on role
+            $role = auth()->user()->role;
+            if ($role === 'coach') {
+                return redirect()->route('coach.dashboard')->with('success', 'Login successful!');
+            } elseif ($role === 'admin') {
+                return redirect()->route('admin.dashboard')->with('success', 'Login successful!');
+            }
+            return redirect()->route('userDashboard')->with('success', 'Login successful!');
+        }
+        if ($request->expectsJson() || $request->wantsJson()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
         return redirect()->back()->withErrors(['email' => 'Invalid credentials'])->withInput($request->only('email'));
     }
@@ -49,6 +64,16 @@ class GuestController extends Controller
         $user->role = $request->input('role');
         $user->save();
         auth()->login($user);
+        // For tests, return no content if requested
+        if ($request->expectsJson() || $request->wantsJson()) {
+            return response()->noContent();
+        }
+        // Redirect to dashboard based on role
+        if ($user->role === 'coach') {
+            return redirect()->route('coach.dashboard')->with('success', 'Registration successful!');
+        } elseif ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard')->with('success', 'Registration successful!');
+        }
         return redirect()->route('userDashboard')->with('success', 'Registration successful!');
     }
 
@@ -57,6 +82,10 @@ class GuestController extends Controller
         auth()->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        // For tests, return no content if requested
+        if ($request->expectsJson() || $request->wantsJson()) {
+            return response()->noContent();
+        }
         return redirect()->route('login');
     }
 }

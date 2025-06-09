@@ -13,3 +13,7 @@
         <button type="submit">Create Comment</button>
     </form>
 @endsection
+
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/auth-theme.css') }}">
+@endpush

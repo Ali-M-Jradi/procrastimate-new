@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+
 <header class="header">
     <h1>Welcome to Procrastimate</h1>
     <nav>
@@ -44,7 +46,7 @@
     </ul>
 </div>
 
-<div>
+<div class="contact-section">
     <h2>Contact Us</h2>
     <p>
         If you have any questions or feedback, please feel free to contact us at
