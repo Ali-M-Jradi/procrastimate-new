@@ -1,13 +1,20 @@
 @extends('layouts.app')
 
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/app.css') }}">
-@endpush
-
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+<header class="header">
+    <h1>Register for Procrastimate</h1>
+    <nav>
+        <ul>
+            <li><a href="{{ route('homepage') }}">Home</a></li>
+            <li><a href="{{ route('login') }}">Login</a></li>
+            <li><a href="{{ route('register') }}">Register</a></li>
+        </ul>
+    </nav>
+</header>
 <div class="container">
-    <section class="auth-section">
-        <h2>Register</h2>
+    <section>
+        <h2>Create Your Account</h2>
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -42,7 +49,7 @@
                     <option value="coach">Coach</option>
                 </select>
             </div>
-            <div class="task-actions">
+            <div class="task-actions mt-4">
                 <button type="submit" class="btn btn-primary">Register</button>
                 <a href="{{ route('login') }}" class="btn btn-success">Back to Login</a>
             </div>

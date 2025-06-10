@@ -1,31 +1,26 @@
 @extends('layouts.app')
 
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/app.css') }}">
-@endpush
-
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+<header class="header">
+    <h1>Welcome, Coach {{ $user->name }}</h1>
+    <nav>
+        <ul>
+            <li><a href="{{ route('coach.dashboard') }}">Dashboard</a></li>
+            <li><a href="#groups">Groups</a></li>
+            <li><a href="#tasks">Tasks</a></li>
+            <li><a href="#notifications">Notifications</a></li>
+            <li><a href="#comments">Comments</a></li>
+            <li>
+                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-danger">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+</header>
 <div class="container">
-    <header>
-        <h1>Welcome, Coach {{ $user->name }}</h1>
-        <p>Manage your groups and tasks, and coach your team effectively.</p>
-        <nav>
-            <ul>
-                <li><a href="{{ route('coach.dashboard') }}">Dashboard</a></li>
-                <li><a href="#groups">Groups</a></li>
-                <li><a href="#tasks">Tasks</a></li>
-                <li><a href="#notifications">Notifications</a></li>
-                <li><a href="#comments">Comments</a></li>
-                <li>
-                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn btn-danger">Logout</button>
-                    </form>
-                </li>
-            </ul>
-        </nav>
-    </header>
-
     <main>
         <section id="groups">
             <h2>Your Groups</h2>
@@ -47,7 +42,7 @@
                     @endforeach
                 </div>
                 <div class="mt-4">
-                    <a href="{{ route('groups.create') }}" class="btn btn-success">Create New Group</a>
+                    <a href="{{ route('groups.create') }}" class="btn btn-primary">Create New Group</a>
                 </div>
             @else
                 <div class="empty-state">
@@ -59,6 +54,9 @@
 
         <section id="tasks">
             <h2>Team Tasks</h2>
+            <div class="mb-3">
+                <a href="{{ route('coach.task.create') }}" class="btn btn-success">Create New Task</a>
+            </div>
             @if(isset($tasks) && $tasks->count() > 0)
                 <div class="task-list">
                     @foreach($tasks as $task)
@@ -68,6 +66,12 @@
                             <p class="task-date">Due: {{ date('F j, Y', strtotime($task->dueDate)) }}</p>
                             <p>Assigned to: {{ $task->user->name }}</p>
                             <div class="task-actions">
+                                <a href="{{ route('coach.task.updateForm', $task->id) }}" class="btn btn-primary">Edit</a>
+                                <form action="{{ route('coach.task.delete', $task->id) }}" method="POST" class="delete-form" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
                                 @if(!$task->isCompleted)
                                     <form action="{{ route('task.approve', $task->id) }}" method="POST" style="display: inline;">
                                         @csrf
@@ -111,11 +115,15 @@
 
         <section id="comments">
             <h2>Recent Comments</h2>
+            <div class="mb-3">
+                <a href="{{ route('coach.comment.createForm', $tasks->first() ? $tasks->first()->id : 0) }}" class="btn btn-primary"
+                   @if(!$tasks->count()) disabled @endif>Create New Comment</a>
+            </div>
             @if(isset($comments) && $comments->count() > 0)
                 <div class="comment-list">
                     @foreach($comments as $comment)
                         <div class="comment-item">
-                            <p>{{ $comment->content }}</p>
+                            <p>{{ $comment->comment }}</p>
                             <small>By {{ $comment->user->name }} - {{ $comment->created_at->diffForHumans() }}</small>
                         </div>
                     @endforeach
@@ -128,6 +136,4 @@
         </section>
     </main>
 </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{{ asset('js/coach-dashboard.js') }}"></script>
 @endsection

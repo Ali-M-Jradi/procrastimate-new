@@ -84,6 +84,21 @@ Route::post('/logout', [GuestController::class, 'logout'])->name('logout');
     // Coach delete
     Route::get('/admin/coach/{id}/delete', [AdminController::class, 'showDeleteCoachForm'])->name('admin.coach.deleteForm');
     Route::post('/admin/coach/{id}/delete', [AdminController::class, 'deleteCoach'])->name('admin.coach.delete');
+
+    // Admin comment management
+    Route::get('/admin/comments', [AdminController::class, 'listComments'])->name('admin.comment.index');
+    Route::get('/admin/comments/create', [AdminController::class, 'showCreateCommentForm'])->name('admin.comment.createForm');
+    Route::post('/admin/comments/create', [AdminController::class, 'createComment'])->name('admin.comment.create');
+    Route::get('/admin/comments/{id}/edit', [AdminController::class, 'showEditCommentForm'])->name('admin.comment.editForm');
+    Route::put('/admin/comments/{id}/edit', [AdminController::class, 'updateComment'])->name('admin.comment.update');
+    Route::delete('/admin/comments/{id}/delete', [AdminController::class, 'deleteComment'])->name('admin.comment.delete');
+    // Admin notification management
+    Route::get('/admin/notifications', [AdminController::class, 'listNotifications'])->name('admin.notification.index');
+    Route::get('/admin/notifications/create', [AdminController::class, 'showCreateNotificationForm'])->name('admin.notification.createForm');
+    Route::post('/admin/notifications/create', [AdminController::class, 'createNotification'])->name('admin.notification.create');
+    Route::get('/admin/notifications/{id}/edit', [AdminController::class, 'showEditNotificationForm'])->name('admin.notification.editForm');
+    Route::put('/admin/notifications/{id}/edit', [AdminController::class, 'updateNotification'])->name('admin.notification.update');
+    Route::delete('/admin/notifications/{id}/delete', [AdminController::class, 'deleteNotification'])->name('admin.notification.delete');
 // });
 
 // Shared routes for all authenticated users (user, coach, admin)
@@ -107,3 +122,14 @@ Route::post('/logout', [GuestController::class, 'logout'])->name('logout');
     Route::get('/group/joinForm', [UserController::class, 'showGroupJoinForm'])->name('group.joinForm');
     Route::post('/group/leave', [UserController::class, 'leaveGroup'])->name('group.leave');
 // });
+
+// Coach task management
+Route::get('/coach/task/create', [App\Http\Controllers\CoachController::class, 'showTaskCreationForm'])->name('coach.task.create');
+Route::post('/coach/task/create', [App\Http\Controllers\CoachController::class, 'createTask'])->name('coach.task.store');
+Route::get('/coach/task/{id}/update', [App\Http\Controllers\CoachController::class, 'showTaskUpdateForm'])->name('coach.task.updateForm');
+Route::post('/coach/task/{id}/update', [App\Http\Controllers\CoachController::class, 'updateTask'])->name('coach.task.update');
+Route::delete('/coach/task/{id}/delete', [App\Http\Controllers\CoachController::class, 'deleteTask'])->name('coach.task.delete');
+
+// Coach comment management
+Route::get('/coach/comment/create/{taskId}', [App\Http\Controllers\CoachController::class, 'showCommentCreationForm'])->name('coach.comment.createForm');
+Route::post('/coach/comment/create', [App\Http\Controllers\CoachController::class, 'createComment'])->name('coach.comment.create');

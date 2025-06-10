@@ -1,30 +1,27 @@
 @extends('layouts.app')
 
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/app.css') }}">
-@endpush
-
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+<header class="header">
+    <h1>Welcome, Admin {{ $admin->name ?? 'User' }}</h1>
+    <nav>
+        <ul>
+            <li><a href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
+            <li><a href="#users">Users</a></li>
+            <li><a href="#groups">Groups</a></li>
+            <li><a href="#tasks">Tasks</a></li>
+            <li><a href="#comments">Comments</a></li>
+            <li><a href="#notifications">Notifications</a></li>
+            <li>
+                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-danger">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+</header>
 <div class="container">
-    <header>
-        <h1>Welcome, Admin {{ $admin->name }}</h1>
-        <p>Manage users, groups, and oversee the platform.</p>
-        <nav>
-            <ul>
-                <li><a href="{{ route('dashboard.admin') }}">Admin Dashboard</a></li>
-                <li><a href="#users">Users</a></li>
-                <li><a href="#groups">Groups</a></li>
-                <li><a href="#tasks">Tasks</a></li>
-                <li>
-                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn btn-danger">Logout</button>
-                    </form>
-                </li>
-            </ul>
-        </nav>
-    </header>
-
     <main>
         <section id="users">
             <h2>All Users</h2>
@@ -36,7 +33,7 @@
                             <p>{{ $userItem->email }}</p>
                             <span class="badge badge-primary">{{ ucfirst($userItem->role) }}</span>
                             <div class="task-actions">
-                                <a href="{{ route('admin.user.edit', $userItem->id) }}" class="btn btn-primary">Edit</a>
+                                <a href="{{ route('admin.user.updateForm', $userItem->id) }}" class="btn btn-primary">Edit</a>
                                 @if($userItem->role === 'user')
                                     <a href="{{ route('admin.user.promote', $userItem->id) }}" class="btn btn-success">Promote to Coach</a>
                                 @elseif($userItem->role === 'coach')
@@ -109,8 +106,15 @@
                 </div>
             @endif
         </section>
+
+        <section id="comments">
+            <h2>All Comments</h2>
+            <a href="{{ route('admin.comment.index') }}" class="btn btn-primary mb-3">Manage Comments</a>
+        </section>
+        <section id="notifications">
+            <h2>All Notifications</h2>
+            <a href="{{ route('admin.notification.index') }}" class="btn btn-primary mb-3">Manage Notifications</a>
+        </section>
     </main>
 </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{{ asset('js/coach-dashboard.js') }}"></script>
 @endsection

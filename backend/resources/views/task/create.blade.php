@@ -1,13 +1,20 @@
 @extends('layouts.app')
 
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/app.css') }}">
-@endpush
-
 @section('content')
-<div class="container">
+<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+<header class="header">
+    <h1>Create New Task</h1>
+    <nav>
+        <ul>
+            <li><a href="{{ route('homepage') }}">Home</a></li>
+            <li><a href="{{ route('login') }}">Login</a></li>
+            <li><a href="{{ route('register') }}">Register</a></li>
+        </ul>
+    </nav>
+</header>
+<div class="container fade-section">
     <section>
-        <h2>Create New Task</h2>
+        <h2>Task Details</h2>
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -17,12 +24,7 @@
                 </ul>
             </div>
         @endif
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-        <form action="{{ route('task.create') }}" method="POST">
+        <form action="{{ route('coach.task.store') }}" method="POST">
             @csrf
             <div class="form-group">
                 <label for="title">Title</label>
@@ -33,17 +35,18 @@
                 <textarea name="description" id="description" class="form-control" required placeholder="Enter task description" rows="4">{{ old('description') }}</textarea>
             </div>
             <div class="form-group">
+                <label for="user_id">Assign to User</label>
+                <input type="number" name="user_id" id="user_id" class="form-control" required>
+            </div>
+            <div class="form-group">
                 <label for="dueDate">Due Date</label>
                 <input type="date" name="dueDate" id="dueDate" class="form-control" required value="{{ old('dueDate') }}">
             </div>
             <div class="task-actions">
-                <button type="submit" class="btn btn-primary">Create Task</button>
+                <button type="submit" class="btn btn-success">Create Task</button>
                 <a href="{{ route('userDashboard') }}" class="btn btn-danger">Cancel</a>
             </div>
         </form>
     </section>
 </div>
 @endsection
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{{ asset('js/coach-dashboard.js') }}"></script>

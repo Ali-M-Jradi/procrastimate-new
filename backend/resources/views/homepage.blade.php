@@ -1,49 +1,52 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <header class="text-center">
-        <h1>Welcome to Procrastimate!</h1>
-        <p>Your productivity companion. Track tasks, set goals, and beat procrastination.</p>
-    </header>
-
-    <section>
-        @guest
-            <div class="task-actions" style="justify-content: center;">
-                <a href="{{ route('login') }}" class="btn btn-primary">Login</a>
-                <a href="{{ route('register') }}" class="btn btn-success">Register</a>
-            </div>
-        @else
-            <div class="task-actions" style="justify-content: center;">
-                <a href="{{ route('dashboard') }}" class="btn btn-success">Go to Dashboard</a>
-            </div>
-        @endguest
-    </section>
-
-    <section>
-        <h2>Features</h2>
-        <div class="task-list">
-            <div class="task-item">
-                <h3>Task Management</h3>
-                <p>Create, update, and track your tasks easily.</p>
-            </div>
-            <div class="task-item">
-                <h3>Progress Tracking</h3>
-                <p>Monitor your productivity and task completion rates.</p>
-            </div>
-            <div class="task-item">
-                <h3>Team Collaboration</h3>
-                <p>Work together with coaches and team members.</p>
-            </div>
-            <div class="task-item">
-                <h3>Smart Notifications</h3>
-                <p>Stay updated with important task reminders.</p>
-            </div>
-        </div>
-    </section>
+<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+<header class="header">
+    <h1>Welcome to Procrastimate</h1>
+    <nav>
+        <ul>
+            <li><a href="{{ route('homepage') }}">Home</a></li>
+            <li><a href="{{ route('login') }}">Login</a></li>
+            <li><a href="{{ route('register') }}">Register</a></li>
+            <li><a href="#aboutUs">About Us</a></li>
+            <li><a href="#features">Features</a></li>
+        </ul>
+    </nav>
+    <br>
+    <h2>Guest HomePage</h2>
+    <p>
+        Welcome to Procrastimate! This is a simple web application that helps you manage your tasks and time effectively.<br>
+        You can create, update, and delete tasks, as well as track your time spent on each task.
+    </p>
+    <br>
+    <p>
+        To get started, please <a href="{{ route('login') }}">log in</a> or <a href="{{ route('register') }}">register</a> to create an account.<br>
+        Once you have an account, you can access all the features of the application.
+    </p>
+</header>
+<div id="aboutUs">
+    <h2>About Us</h2>
+    <p>
+        We are a team of developers who are passionate about helping people manage their time and tasks effectively.<br>
+        Our goal is to create a simple and user-friendly application that helps you stay organized and productive.
+    </p>
+</div>
+<div id="features">
+    <h2>Features of Procrastimate</h2>
+    <ul>
+        <li>Create, update, and delete tasks</li>
+        <li>Track time spent on each task</li>
+        <li>Set deadlines and reminders for tasks</li>
+        <li>View task history and statistics</li>
+        <li>User-friendly interface</li>
+    </ul>
+</div>
+<div class="contact-section">
+    <h2>Contact Us</h2>
+    <p>
+        If you have any questions or feedback, please feel free to contact us at
+        <a href="mailto:101220427@mu.edu.lb">101220427@mu.edu.lb</a>
+    </p>
 </div>
 @endsection
-
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/auth-theme.css') }}">
-@endpush

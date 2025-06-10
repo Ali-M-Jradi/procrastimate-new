@@ -1,31 +1,26 @@
 @extends('layouts.app')
 
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/app.css') }}">
-@endpush
-
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+<header class="header">
+    <h1>Welcome, {{ $user->name }}</h1>
+    <nav>
+        <ul>
+            <li><a href="{{ route('userDashboard') }}">Dashboard</a></li>
+            <li><a href="#tasks">Tasks</a></li>
+            <li><a href="#groups">Groups</a></li>
+            <li><a href="#notifications">Notifications</a></li>
+            <li><a href="#comments">Comments</a></li>
+            <li>
+                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-danger">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+</header>
 <div class="container">
-    <header>
-        <h1>Welcome, {{ $user->name }}</h1>
-        <p>Manage your tasks and track your time effectively.</p>
-        <nav>
-            <ul>
-                <li><a href="{{ route('userDashboard') }}">Dashboard</a></li>
-                <li><a href="#tasks">Tasks</a></li>
-                <li><a href="#groups">Groups</a></li>
-                <li><a href="#notifications">Notifications</a></li>
-                <li><a href="#comments">Comments</a></li>
-                <li>
-                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn btn-danger">Logout</button>
-                    </form>
-                </li>
-            </ul>
-        </nav>
-    </header>
-
     <main>
         <section id="tasks">
             <h2>Your Tasks</h2>
@@ -58,7 +53,7 @@
                     @endforeach
                 </div>
                 <div class="mt-4">
-                    <a href="{{ route('task.create') }}" class="btn btn-success">Create New Task</a>
+                    <a href="{{ route('task.create') }}" class="btn btn-primary">Create New Task</a>
                 </div>
             @endif
         </section>
@@ -82,7 +77,7 @@
                     @endforeach
                 </div>
                 <div class="mt-4">
-                    <a href="{{ route('group.joinForm') }}" class="btn btn-success">Join Another Group</a>
+                    <a href="{{ route('group.joinForm') }}" class="btn btn-primary">Join Another Group</a>
                 </div>
             @else
                 <div class="empty-state">

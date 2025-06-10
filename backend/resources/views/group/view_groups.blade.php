@@ -1,6 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+<header class="header">
+    <h1>Groups</h1>
+    <nav>
+        <ul>
+            <li><a href="{{ route('homepage') }}">Home</a></li>
+            <li><a href="{{ route('login') }}">Login</a></li>
+            <li><a href="{{ route('register') }}">Register</a></li>
+        </ul>
+    </nav>
+</header>
 <div class="container">
     <section>
         <h2>All Groups</h2>

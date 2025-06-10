@@ -1,13 +1,20 @@
 @extends('layouts.app')
 
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/app.css') }}">
-@endpush
-
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+<header class="header">
+    <h1>Create New Group</h1>
+    <nav>
+        <ul>
+            <li><a href="{{ route('homepage') }}">Home</a></li>
+            <li><a href="{{ route('login') }}">Login</a></li>
+            <li><a href="{{ route('register') }}">Register</a></li>
+        </ul>
+    </nav>
+</header>
 <div class="container">
     <section>
-        <h2>Create New Group</h2>
+        <h2>Group Details</h2>
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>

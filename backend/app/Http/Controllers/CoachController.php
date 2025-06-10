@@ -108,17 +108,35 @@ class CoachController extends Controller
         return view('coach.notifications.view', compact('notifications'));
     }
 
+    public function showTaskCreationForm()
+    {
+        return view('task.create');
+    }
+
+    public function showTaskUpdateForm($id)
+    {
+        $task = Task::where('coach_id', auth()->id())->findOrFail($id);
+        return view('task.update', compact('task'));
+    }
+
     public function createComment(Request $request)
     {
         $request->validate([
-            'content' => 'required|string|max:255',
+            'task_id' => 'required|exists:tasks,id',
+            'comment' => 'required|string|max:255',
         ]);
-        
-        auth()->user()->comments()->create([
-            'content' => $request->content,
+        Comment::create([
+            'user_id' => auth()->id(),
+            'task_id' => $request->task_id,
+            'comment' => $request->comment,
         ]);
-        
         return redirect()->back()->with('success', 'Comment created successfully!');
+    }
+
+    public function showCommentCreationForm($taskId)
+    {
+        $task = Task::where('coach_id', auth()->id())->findOrFail($taskId);
+        return view('comment.create_comment', compact('task'));
     }
     
     public function joinGroup(Request $request)

@@ -13,12 +13,15 @@ class AdminController extends Controller
 {
     public function viewDashboard()
     {
+        $admin = Auth::user();
         $tasks = Task::all();
         $users = User::where('role', '!=', 'admin')->get();
         $groups = Group::all();
         $coaches = User::where('role', 'coach')->get();
+        $comments = \App\Models\Comment::with(['user', 'task'])->orderByDesc('created_at')->get();
+        $notifications = \App\Models\Notification::with(['toUser'])->orderByDesc('created_at')->get();
         
-        return view('dashboard.adminDashboard', compact('tasks', 'users', 'groups', 'coaches'));
+        return view('dashboard.adminDashboard', compact('admin', 'tasks', 'users', 'groups', 'coaches', 'comments', 'notifications'));
     }
 
     // User Management Methods
@@ -185,5 +188,82 @@ class AdminController extends Controller
         
         return redirect()->route('admin.dashboard')
             ->with('success', 'Coach deleted successfully!');
+    }
+
+    // --- COMMENT MANAGEMENT ---
+    public function listComments() {
+        $comments = \App\Models\Comment::with(['user', 'task'])->orderByDesc('created_at')->get();
+        return view('admin.comment.index', compact('comments'));
+    }
+    public function showCreateCommentForm() {
+        $tasks = \App\Models\Task::all();
+        $users = \App\Models\User::all();
+        return view('admin.comment.create', compact('tasks', 'users'));
+    }
+    public function createComment(Request $request) {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'task_id' => 'required|exists:tasks,id',
+            'comment' => 'required|string|max:255',
+        ]);
+        \App\Models\Comment::create($request->only('user_id', 'task_id', 'comment'));
+        return redirect()->route('admin.comment.index')->with('success', 'Comment created successfully!');
+    }
+    public function showEditCommentForm($id) {
+        $comment = \App\Models\Comment::findOrFail($id);
+        $tasks = \App\Models\Task::all();
+        $users = \App\Models\User::all();
+        return view('admin.comment.edit', compact('comment', 'tasks', 'users'));
+    }
+    public function updateComment(Request $request, $id) {
+        $comment = \App\Models\Comment::findOrFail($id);
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'task_id' => 'required|exists:tasks,id',
+            'comment' => 'required|string|max:255',
+        ]);
+        $comment->update($request->only('user_id', 'task_id', 'comment'));
+        return redirect()->route('admin.comment.index')->with('success', 'Comment updated successfully!');
+    }
+    public function deleteComment($id) {
+        $comment = \App\Models\Comment::findOrFail($id);
+        $comment->delete();
+        return redirect()->route('admin.comment.index')->with('success', 'Comment deleted successfully!');
+    }
+    // --- NOTIFICATION MANAGEMENT ---
+    public function listNotifications() {
+        $notifications = \App\Models\Notification::orderByDesc('created_at')->get();
+        return view('admin.notification.index', compact('notifications'));
+    }
+    public function showCreateNotificationForm() {
+        $users = \App\Models\User::all();
+        return view('admin.notification.create', compact('users'));
+    }
+    public function createNotification(Request $request) {
+        $request->validate([
+            'to_user_id' => 'required|exists:users,id',
+            'message' => 'required|string|max:1000',
+        ]);
+        \App\Models\Notification::create($request->only('to_user_id', 'message'));
+        return redirect()->route('admin.notification.index')->with('success', 'Notification created successfully!');
+    }
+    public function showEditNotificationForm($id) {
+        $notification = \App\Models\Notification::findOrFail($id);
+        $users = \App\Models\User::all();
+        return view('admin.notification.edit', compact('notification', 'users'));
+    }
+    public function updateNotification(Request $request, $id) {
+        $notification = \App\Models\Notification::findOrFail($id);
+        $request->validate([
+            'to_user_id' => 'required|exists:users,id',
+            'message' => 'required|string|max:1000',
+        ]);
+        $notification->update($request->only('to_user_id', 'message'));
+        return redirect()->route('admin.notification.index')->with('success', 'Notification updated successfully!');
+    }
+    public function deleteNotification($id) {
+        $notification = \App\Models\Notification::findOrFail($id);
+        $notification->delete();
+        return redirect()->route('admin.notification.index')->with('success', 'Notification deleted successfully!');
     }
 }
