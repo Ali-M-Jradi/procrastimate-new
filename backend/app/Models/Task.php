@@ -17,10 +17,8 @@ class Task extends Model
         'description',     // Task description
         'dueDate',         // Due date (if your DB column is 'dueDate')
         'isCompleted',     // Boolean or status field
-        'user_id',         // The user assigned to the task
-        'coach_id',        // The coach who assigned/oversees the task (if applicable)
-        'admin_id',        // The admin who assigned/oversees the task (if applicable)
-        // Add/remove fields as needed for your schema
+        'user_id',         // <-- add this line
+
     ];
 
     // Relationships
@@ -43,5 +41,9 @@ class Task extends Model
     public function groups()
     {
         return $this->belongsToMany(Group::class, 'group_task', 'task_id', 'group_id');
+    }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'task_id');
     }
 }

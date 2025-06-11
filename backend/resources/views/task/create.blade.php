@@ -2,16 +2,52 @@
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-<header class="header">
-    <h1>Create New Task</h1>
-    <nav>
-        <ul>
-            <li><a href="{{ route('homepage') }}">Home</a></li>
-            <li><a href="{{ route('login') }}">Login</a></li>
-            <li><a href="{{ route('register') }}">Register</a></li>
-        </ul>
-    </nav>
-</header>
+@php
+    $user = auth()->user();
+@endphp
+@if($user && $user->role === 'admin')
+    <header class="header">
+        <h1>Admin Dashboard</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ route('groups.index') }}">Groups</a></li>
+                <li><a href="{{ route('admin.user.createForm') }}">Add User</a></li>
+                <li><a href="{{ route('admin.notification.index') }}">Notifications</a></li>
+                <li><a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
+@elseif($user && $user->role === 'coach')
+    <header class="header">
+        <h1>Coach Dashboard</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ route('coach.dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ route('groups.index') }}">Groups</a></li>
+                <li><a href="{{ route('coach.task.create') }}">Add Task</a></li>
+                <li><a href="{{ route('notifications.view') }}">Notifications</a></li>
+                <li><a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
+@elseif($user && $user->role === 'user')
+    <header class="header">
+        <h1>User Dashboard</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ route('userDashboard') }}">Dashboard</a></li>
+                <li><a href="#tasks">Tasks</a></li>
+                <li><a href="#groups">Groups</a></li>
+                <li><a href="#comments">Comments</a></li>
+                <li><a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
+@endif
 <div class="container fade-section">
     <section>
         <h2>Task Details</h2>
@@ -24,7 +60,7 @@
                 </ul>
             </div>
         @endif
-        <form action="{{ route('coach.task.store') }}" method="POST">
+        <form action="{{ route('task.create') }}" method="POST">
             @csrf
             <div class="form-group">
                 <label for="title">Title</label>
@@ -35,16 +71,18 @@
                 <textarea name="description" id="description" class="form-control" required placeholder="Enter task description" rows="4">{{ old('description') }}</textarea>
             </div>
             <div class="form-group">
-                <label for="user_id">Assign to User</label>
-                <input type="number" name="user_id" id="user_id" class="form-control" required>
-            </div>
-            <div class="form-group">
                 <label for="dueDate">Due Date</label>
                 <input type="date" name="dueDate" id="dueDate" class="form-control" required value="{{ old('dueDate') }}">
             </div>
             <div class="task-actions">
                 <button type="submit" class="btn btn-success">Create Task</button>
-                <a href="{{ route('userDashboard') }}" class="btn btn-danger">Cancel</a>
+                @if($user && $user->role === 'admin')
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-danger">Cancel</a>
+                @elseif($user && $user->role === 'coach')
+                    <a href="{{ route('coach.dashboard') }}" class="btn btn-danger">Cancel</a>
+                @else
+                    <a href="{{ route('userDashboard') }}" class="btn btn-danger">Cancel</a>
+                @endif
             </div>
         </form>
     </section>

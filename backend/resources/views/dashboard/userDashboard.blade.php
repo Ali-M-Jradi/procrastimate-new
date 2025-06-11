@@ -3,7 +3,7 @@
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 <header class="header">
-    <h1>Welcome, {{ $user->name }}</h1>
+    <h1>Welcome, User {{ $user->name }}</h1>
     <nav>
         <ul>
             <li><a href="{{ route('userDashboard') }}">Dashboard</a></li>
@@ -32,12 +32,20 @@
             @else
                 <div class="task-list">
                     @foreach($tasks as $task)
-                        <div class="task-item">
+                        @php
+                            $dueDate = \Carbon\Carbon::parse($task->dueDate);
+                            $daysLeft = $dueDate->diffInDays(now(), false);
+                        @endphp
+                        <div class="task-item @if($daysLeft >= 0 && $daysLeft <= 3) alerted-task @endif">
                             <h3>{{ $task->title }}</h3>
                             <p>{{ $task->description }}</p>
-                            <p class="task-date">Due: {{ date('F j, Y', strtotime($task->dueDate)) }}</p>
+                            <p class="task-date">Due: {{ date('F j, Y', strtotime($task->dueDate)) }}
+                                @if($daysLeft >= 0 && $daysLeft <= 3)
+                                    <span class="badge badge-danger ml-2">Due Soon!</span>
+                                @endif
+                            </p>
                             <div class="task-actions">
-                                <a href="{{ route('task.update', $task->id) }}" class="btn btn-primary">Edit</a>
+                                <a href="{{ route('task.updateForm', $task->id) }}" class="btn btn-primary">Edit</a>
                                 <form action="{{ route('task.delete', $task->id) }}" method="POST" style="display: inline;">
                                     @csrf
                                     @method('DELETE')
@@ -113,13 +121,18 @@
             @else
                 <div class="comment-list">
                     @foreach($comments as $comment)
+                        @if($comment->user_id === $user->id)
                         <div class="comment-item">
-                            <p>{{ $comment->content }}</p>
-                            <small>- {{ $comment->author }}</small>
+                            <strong>Message:</strong>
+                            <p>{{ $comment->comment }}</p>
+                            <small><strong>User:</strong> {{ $user->name }}</small>
                         </div>
+                        <hr>
+                        @endif
                     @endforeach
                 </div>
             @endif
+            <a href="{{ route('comment.createForm', ['task_id' => ($tasks->first()->id ?? 1)]) }}" class="btn btn-outline-info mb-3">Add Comment</a>
         </section>
     </main>
 </div>

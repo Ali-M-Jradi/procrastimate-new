@@ -21,6 +21,7 @@ class GuestController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:6',
+            'role' => 'required|in:user,coach,admin',
         ]);
         if (auth()->attempt($request->only('email', 'password'))) {
             $request->session()->regenerate();
@@ -29,10 +30,14 @@ class GuestController extends Controller
                 return response()->noContent();
             }
             // Redirect to dashboard based on role
-            $role = auth()->user()->role;
-            if ($role === 'coach') {
+            $user = auth()->user();
+            if ($user->role !== $request->input('role')) {
+                auth()->logout();
+                return redirect()->back()->withErrors(['role' => 'Selected role does not match your account role.'])->withInput($request->only('email'));
+            }
+            if ($user->role === 'coach') {
                 return redirect()->route('coach.dashboard')->with('success', 'Login successful!');
-            } elseif ($role === 'admin') {
+            } elseif ($user->role === 'admin') {
                 return redirect()->route('admin.dashboard')->with('success', 'Login successful!');
             }
             return redirect()->route('userDashboard')->with('success', 'Login successful!');

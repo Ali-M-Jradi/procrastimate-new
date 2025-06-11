@@ -14,13 +14,14 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $user->load('groups'); // Eager load the groups relationship
-        $tasks = $user->tasks;
+        // Show all tasks where the user is the assigned user or creator
+        $tasks = \App\Models\Task::where('user_id', $user->id)
+            ->orWhere('created_by', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
         $notifications = $user->notifications;
         $comments = $user->comments;
-
-        // Use Eloquent relationship if available
         $coach = $user->coach ?? null;
-
         return view('dashboard.userDashboard', compact('user', 'tasks', 'notifications', 'comments', 'coach'));
     }
 
@@ -34,11 +35,11 @@ class UserController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
-            'dueDate' => 'required|date',
+            'dueDate' => ['required', 'date', 'after:today'],
         ]);
         
         $task = Task::create([
-            'user_id' => auth()->id(),
+            'user_id' => auth()->id(), // Always assign to the current user
             'title' => $request->title,
             'description' => $request->description,
             'dueDate' => $request->dueDate,
@@ -59,7 +60,7 @@ class UserController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
-            'dueDate' => 'required|date',
+            'dueDate' => ['required', 'date', 'after:today'],
         ]);
         $task->update([
             'title' => $request->title,
@@ -92,10 +93,12 @@ class UserController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'message' => 'required|string|max:1000',
+            'to_user_id' => 'required|exists:users,id',
         ]);
         auth()->user()->notifications()->create([
             'title' => $request->title,
             'message' => $request->message,
+            'to_user_id' => $request->to_user_id,
         ]);
         return redirect()->route('notifications.view')->with('success', 'Notification created successfully!');
     }

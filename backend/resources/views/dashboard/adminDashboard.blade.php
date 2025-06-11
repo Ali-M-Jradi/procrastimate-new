@@ -109,7 +109,7 @@
 
         <section id="comments">
             <h2>All Comments</h2>
-            <a href="{{ route('admin.comment.index') }}" class="btn btn-primary mb-3">Manage Comments</a>
+            <a href="{{ route('admin.comment.create') }}" class="btn btn-primary mb-3">Manage Comments</a>
         </section>
         <section id="notifications">
             <h2>All Notifications</h2>

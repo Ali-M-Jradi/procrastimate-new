@@ -14,7 +14,12 @@ class AdminController extends Controller
     public function viewDashboard()
     {
         $admin = Auth::user();
-        $tasks = Task::all();
+        // Show all tasks where the admin is the creator or assigned user
+        $tasks = \App\Models\Task::where('user_id', $admin->id)
+            ->orWhere('created_by', $admin->id)
+            ->with(['user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
         $users = User::where('role', '!=', 'admin')->get();
         $groups = Group::all();
         $coaches = User::where('role', 'coach')->get();

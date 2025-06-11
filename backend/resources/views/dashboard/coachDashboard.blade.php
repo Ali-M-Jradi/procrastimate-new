@@ -23,8 +23,12 @@
 <div class="container">
     <main>
         <section id="groups">
-            <h2>Your Groups</h2>
+            <h2>Groups</h2>
             @if(isset($groups) && $groups->count() > 0)
+                <div class="text-end mt-4">
+                    <a href="{{ route('groups.create') }}" class="btn btn-primary">Create New Group</a>
+                </div>
+                <br>
                 <div class="group-list">
                     @foreach($groups as $group)
                         <div class="task-item">
@@ -41,11 +45,8 @@
                         </div>
                     @endforeach
                 </div>
-                <div class="mt-4">
-                    <a href="{{ route('groups.create') }}" class="btn btn-primary">Create New Group</a>
-                </div>
             @else
-                <div class="empty-state">
+                <div class="empty-state text-center mt-4">
                     <p>You haven't created any groups yet.</p>
                     <a href="{{ route('groups.create') }}" class="btn btn-primary">Create Your First Group</a>
                 </div>
@@ -53,18 +54,18 @@
         </section>
 
         <section id="tasks">
-            <h2>Team Tasks</h2>
-            <div class="mb-3">
-                <a href="{{ route('coach.task.create') }}" class="btn btn-success">Create New Task</a>
-            </div>
+            <h2>Tasks</h2>
             @if(isset($tasks) && $tasks->count() > 0)
+                <div class="text-end mt-4">
+                    <a href="{{ route('coach.task.create') }}" class="btn btn-primary">Create New Task</a>
+                </div>
                 <div class="task-list">
                     @foreach($tasks as $task)
                         <div class="task-item">
                             <h3>{{ $task->title }}</h3>
                             <p>{{ $task->description }}</p>
                             <p class="task-date">Due: {{ date('F j, Y', strtotime($task->dueDate)) }}</p>
-                            <p>Assigned to: {{ $task->user->name }}</p>
+                            <p>Assigned to: {{ $task->user ? $task->user->name : 'Unassigned' }}</p>
                             <div class="task-actions">
                                 <a href="{{ route('coach.task.updateForm', $task->id) }}" class="btn btn-primary">Edit</a>
                                 <form action="{{ route('coach.task.delete', $task->id) }}" method="POST" class="delete-form" style="display: inline;">
@@ -89,8 +90,9 @@
                     @endforeach
                 </div>
             @else
-                <div class="empty-state">
+                <div class="empty-state text-center mt-4">
                     <p>No team tasks to review at the moment.</p>
+                    <a href="{{ route('coach.task.create') }}" class="btn btn-primary">Create New Task</a>
                 </div>
             @endif
         </section>
@@ -98,6 +100,9 @@
         <section id="notifications">
             <h2>Notifications</h2>
             @if(isset($notifications) && $notifications->count() > 0)
+                <div class="text-end mt-4">
+                    <a href="{{ route('notification.createForm') }}" class="btn btn-primary">Create Notification</a>
+                </div>
                 <div class="notification-list">
                     @foreach($notifications as $notification)
                         <div class="notification-item">
@@ -107,19 +112,20 @@
                     @endforeach
                 </div>
             @else
-                <div class="empty-state">
+                <div class="empty-state text-center mt-4">
                     <p>No notifications at the moment.</p>
+                    <a href="{{ route('notification.createForm') }}" class="btn btn-primary">Create Notification</a>
                 </div>
             @endif
         </section>
 
         <section id="comments">
-            <h2>Recent Comments</h2>
-            <div class="mb-3">
-                <a href="{{ route('coach.comment.createForm', $tasks->first() ? $tasks->first()->id : 0) }}" class="btn btn-primary"
-                   @if(!$tasks->count()) disabled @endif>Create New Comment</a>
-            </div>
+            <h2>Comments</h2>
             @if(isset($comments) && $comments->count() > 0)
+                <div class="text-end mt-4">
+                    <a href="{{ route('coach.comment.createForm', $tasks->first() ? $tasks->first()->id : 0) }}" class="btn btn-primary"
+                       @if(!$tasks->count()) disabled @endif>Create New Comment</a>
+                </div>
                 <div class="comment-list">
                     @foreach($comments as $comment)
                         <div class="comment-item">
@@ -129,8 +135,10 @@
                     @endforeach
                 </div>
             @else
-                <div class="empty-state">
+                <div class="empty-state text-center mt-4">
                     <p>No comments yet.</p>
+                    <a href="{{ route('coach.comment.createForm', $tasks->first() ? $tasks->first()->id : 0) }}" class="btn btn-primary"
+                       @if(!$tasks->count()) disabled @endif>Create New Comment</a>
                 </div>
             @endif
         </section>
