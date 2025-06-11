@@ -21,7 +21,7 @@ Route::get('/', [GuestController::class, 'index'])->name('homepage');
 Route::post('/logout', [GuestController::class, 'logout'])->name('logout');
 
 // User Dashboard
-// Route::middleware(['auth', 'CheckRole:user'])->group(function () {
+// Route::middleware(['auth', 'role:user'])->group(function () {
     Route::get('/user/dashboard', [UserController::class, 'viewDashboard'])->name('userDashboard');
 // });
 

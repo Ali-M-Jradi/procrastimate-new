@@ -19,22 +19,7 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-
-            // Redirect based on the user's role
-            $user = Auth::user();
-            switch ($user->role) {
-                case 'admin':
-                    return redirect()->route('admin.dashboard');
-                case 'user':
-                    return redirect()->route('userDashboard');
-                case 'coach':
-                    return redirect()->route('coach.dashboard');
-                default:
-                    Auth::logout(); // Logout if the role is invalid
-                    return back()->withErrors([
-                        'role' => 'Invalid role detected.',
-                    ]);
-            }
+            return redirect()->intended('/dashboard');
         }
 
         return back()->withErrors([

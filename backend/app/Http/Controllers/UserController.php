@@ -35,22 +35,15 @@ class UserController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
             'dueDate' => 'required|date',
-            'assigned_to' => 'nullable|exists:users,id', // Allow assigning tasks only if the user exists
         ]);
-
-        // Restrict assigning tasks to other users to coach and admin roles
-        if ($request->assigned_to && !in_array(auth()->user()->role, ['coach', 'admin'])) {
-            return redirect()->route('userDashboard')->with('error', 'You are not authorized to assign tasks to other users.');
-        }
-
+        
         $task = Task::create([
-            'user_id' => $request->assigned_to ?? auth()->id(), // Assign to self if no user is specified
+            'user_id' => auth()->id(),
             'title' => $request->title,
             'description' => $request->description,
             'dueDate' => $request->dueDate,
             'isCompleted' => false,
         ]);
-
         return redirect()->route('userDashboard')->with('success', 'Task Created.');
     }
 
