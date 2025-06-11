@@ -14,9 +14,8 @@ class AdminController extends Controller
     public function viewDashboard()
     {
         $admin = Auth::user();
-        // Show all tasks where the admin is the creator or assigned user
+        // Show all tasks where the admin is the assigned user (no created_by column)
         $tasks = \App\Models\Task::where('user_id', $admin->id)
-            ->orWhere('created_by', $admin->id)
             ->with(['user'])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -211,7 +210,19 @@ class AdminController extends Controller
             'task_id' => 'required|exists:tasks,id',
             'comment' => 'required|string|max:255',
         ]);
-        \App\Models\Comment::create($request->only('user_id', 'task_id', 'comment'));
+        $comment = \App\Models\Comment::create($request->only('user_id', 'task_id', 'comment'));
+        // Send notification to the owner of the task if not the commenter
+        $task = \App\Models\Task::find($request->task_id);
+        if ($task && $task->user_id !== (int)$request->user_id) {
+            \App\Models\Notification::create([
+                'to_user_id' => $task->user_id,
+                'message' => 'New comment on your task: "' . $task->title . '"',
+                'type' => 'comment',
+                'notifiable_type' => \App\Models\Comment::class,
+                'notifiable_id' => $comment->id,
+                'read' => false,
+            ]);
+        }
         return redirect()->route('admin.comment.index')->with('success', 'Comment created successfully!');
     }
     public function showEditCommentForm($id) {
@@ -270,5 +281,59 @@ class AdminController extends Controller
         $notification = \App\Models\Notification::findOrFail($id);
         $notification->delete();
         return redirect()->route('admin.notification.index')->with('success', 'Notification deleted successfully!');
+    }
+
+    // Task approval/rejection by admin
+    public function approveTask(Request $request, $id)
+    {
+        $task = \App\Models\Task::findOrFail($id);
+        $user = auth()->user();
+        if ($task->user_id == $user->id) {
+            return redirect()->back()->withErrors('You cannot approve your own task.');
+        }
+        $task->update(['isCompleted' => true]);
+        // Send notification to the user
+        \App\Models\Notification::create([
+            'to_user_id' => $task->user_id,
+            'message' => 'Your task "' . $task->title . '" was approved by admin ' . $user->name . '.',
+            'type' => 'task_approved',
+            'notifiable_type' => \App\Models\Task::class,
+            'notifiable_id' => $task->id,
+            'read' => false,
+        ]);
+        return redirect()->route('admin.dashboard')->with('success', 'Task approved successfully!');
+    }
+    public function rejectTask(Request $request, $id)
+    {
+        $task = \App\Models\Task::findOrFail($id);
+        $user = auth()->user();
+        if ($task->user_id == $user->id) {
+            return redirect()->back()->withErrors('You cannot reject your own task.');
+        }
+        $task->update(['isCompleted' => false]);
+        // Send notification to the user
+        \App\Models\Notification::create([
+            'to_user_id' => $task->user_id,
+            'message' => 'Your task "' . $task->title . '" was rejected by admin ' . $user->name . '.',
+            'type' => 'task_rejected',
+            'notifiable_type' => \App\Models\Task::class,
+            'notifiable_id' => $task->id,
+            'read' => false,
+        ]);
+        return redirect()->route('admin.dashboard')->with('success', 'Task rejected successfully!');
+    }
+
+    public function showTaskCreationForm()
+    {
+        $user = auth()->user();
+        if ($user->role === 'admin') {
+            $users = \App\Models\User::where('role', 'user')->get();
+            $coaches = \App\Models\User::where('role', 'coach')->get();
+            // Exclude self from both lists
+            $users = $users->where('id', '!=', $user->id);
+            $coaches = $coaches->where('id', '!=', $user->id);
+            return view('task.create', compact('users', 'coaches'));
+        }
+        return view('task.create');
     }
 }

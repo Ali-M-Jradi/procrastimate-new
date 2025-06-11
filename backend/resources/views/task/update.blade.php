@@ -4,6 +4,9 @@
 <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 @php
     $user = auth()->user();
+    if (!isset($users)) {
+        $users = \App\Models\User::all();
+    }
 @endphp
 @if($user && $user->role === 'admin')
     <header class="header">
@@ -74,9 +77,24 @@
                 <label for="dueDate">Due Date</label>
                 <input type="date" name="dueDate" id="dueDate" class="form-control" value="{{ $task->dueDate }}" required>
             </div>
+            <div class="form-group">
+                <label for="user_id">Assign to User</label>
+                <select name="user_id" id="user_id" class="form-control" required>
+                    <option value="">Select User</option>
+                    @foreach($users as $u)
+                        <option value="{{ $u->id }}" @if($task->user_id == $u->id) selected @endif>{{ $u->name }} ({{ $u->email }})</option>
+                    @endforeach
+                </select>
+            </div>
             <div class="task-actions">
                 <button type="submit" class="btn btn-primary">Update Task</button>
-                <a href="{{ route('userDashboard') }}" class="btn btn-secondary">Cancel</a>
+                @if($user->role === 'admin')
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                @elseif($user->role === 'coach')
+                    <a href="{{ route('coach.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                @else
+                    <a href="{{ route('userDashboard') }}" class="btn btn-secondary">Cancel</a>
+                @endif
             </div>
         </form>
     </section>

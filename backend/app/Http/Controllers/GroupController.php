@@ -35,27 +35,47 @@ class GroupController extends Controller
 
     public function showGroupUpdateForm($id)
     {
-        $group = auth()->user()->groups()->findOrFail($id);
+        $user = auth()->user();
+        
+        // Allow admins and coaches to edit any group
+        if ($user->role === 'admin' || $user->role === 'coach') {
+            $group = Group::findOrFail($id);
+        } else {
+            // Regular users can only edit their own groups
+            $group = auth()->user()->groups()->findOrFail($id);
+        }
+        
         return view('group.edit', compact('group'));
     }
 
     public function updateGroup(Request $request, $id)
     {
-        $group = auth()->user()->groups()->findOrFail($id);
+        $user = auth()->user();
+        
+        // Allow admins and coaches to update any group
+        if ($user->role === 'admin' || $user->role === 'coach') {
+            $group = Group::findOrFail($id);
+        } else {
+            // Regular users can only update their own groups
+            $group = auth()->user()->groups()->findOrFail($id);
+        }
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
         ]);
+        
         $group->update([
             'name' => $request->name,
             'description' => $request->description,
         ]);
-        $user = auth()->user();
+        
         if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard')->with('success', 'Group updated successfully!');
         } elseif ($user->role === 'coach') {
             return redirect()->route('coach.dashboard')->with('success', 'Group updated successfully!');
         }
+        
         return redirect()->back()->with('success', 'Group updated successfully!');
     }
 
@@ -101,7 +121,9 @@ class GroupController extends Controller
     public function viewGroup($id)
     {
         $group = auth()->user()->groups()->findOrFail($id);
-        return view('group.view', compact('group'));
+        // Pass as a collection to maintain compatibility with view_groups.blade.php
+        $groups = collect([$group]);
+        return view('group.view_groups', compact('groups', 'group'));
     }
     public function listGroups()
     {

@@ -14,9 +14,8 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $user->load('groups'); // Eager load the groups relationship
-        // Show all tasks where the user is the assigned user or creator
+        // Show all tasks where the user is the assigned user (no created_by column)
         $tasks = \App\Models\Task::where('user_id', $user->id)
-            ->orWhere('created_by', $user->id)
             ->orderBy('created_at', 'desc')
             ->get();
         $notifications = $user->notifications;
@@ -43,7 +42,7 @@ class UserController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'dueDate' => $request->dueDate,
-            'isCompleted' => false,
+            'status' => 'pending',
         ]);
         return redirect()->route('userDashboard')->with('success', 'Task Created.');
     }

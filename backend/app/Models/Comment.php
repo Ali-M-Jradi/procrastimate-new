@@ -13,17 +13,17 @@ class Comment extends Model
 
     protected $fillable = [
         'user_id',
-        'task_id',   // Use 'task_id' if comments are for tasks
+        'task_id',
         'comment',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function task()
     {
-        return $this->belongsTo(Task::class);
+        return $this->belongsTo(Task::class, 'task_id');
     }
 }

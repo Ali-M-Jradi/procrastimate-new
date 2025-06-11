@@ -74,6 +74,26 @@
                 <label for="dueDate">Due Date</label>
                 <input type="date" name="dueDate" id="dueDate" class="form-control" required value="{{ old('dueDate') }}">
             </div>
+            @if(isset($users) || isset($coaches))
+                <div class="form-group">
+                    <label for="user_id">Assign to User</label>
+                    <select name="user_id" id="user_id" class="form-control" required>
+                        <option value="">Select User</option>
+                        @if(isset($users))
+                            @foreach($users as $u)
+                                <option value="{{ $u->id }}">{{ $u->name }} (User)</option>
+                            @endforeach
+                        @endif
+                        @if(isset($coaches))
+                            @foreach($coaches as $c)
+                                <option value="{{ $c->id }}">{{ $c->name }} (Coach)</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+            @elseif($user && $user->role === 'user')
+                <input type="hidden" name="user_id" value="{{ $user->id }}">
+            @endif
             <div class="task-actions">
                 <button type="submit" class="btn btn-success">Create Task</button>
                 @if($user && $user->role === 'admin')

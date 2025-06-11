@@ -14,7 +14,6 @@
                 <div class="group-item">
                     <h3>{{ $group->name }}</h3>
                     <p>{{ $group->description }}</p>
-                    <a href="{{ route('groups.view', $group->id) }}" class="btn btn-primary">View</a>
                 </div>
             @endforeach
         </div>

@@ -25,7 +25,12 @@
             </div>
             <div class="form-group">
                 <label for="to_user_id">Recipient</label>
-                <input type="number" name="to_user_id" id="to_user_id" class="form-control" required value="{{ old('to_user_id') }}">
+                <select name="to_user_id" id="to_user_id" class="form-control" required>
+                    <option value="">Select User</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->id }}" @if(old('to_user_id') == $user->id) selected @endif>{{ $user->name }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="task-actions">
                 <button type="submit" class="btn btn-primary">Send Notification</button>

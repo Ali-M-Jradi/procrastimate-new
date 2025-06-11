@@ -49,8 +49,9 @@
         @php
             $isAdminOrCoach = auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'coach');
         @endphp
-        <form action="{{ route('groups.update', $group->id) }}" method="POST">
+        <form action="{{ route('groups.update', $group->id) }}" method="PUT">
             @csrf
+            @method('PUT')
             <div class="form-group">
                 <label for="name">Group Name</label>
                 <input type="text" name="name" id="name" class="form-control" value="{{ $group->name }}" required @if(!$isAdminOrCoach) disabled @endif>
@@ -63,7 +64,11 @@
                 @if($isAdminOrCoach)
                     <button type="submit" class="btn btn-primary">Update Group</button>
                 @endif
-                <a href="{{ route('coach.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                @if($user && $user->role === 'admin')
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                @elseif($user && $user->role === 'coach')
+                    <a href="{{ route('coach.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                @endif
             </div>
         </form>
     </section>

@@ -44,6 +44,7 @@
                                     <span class="badge badge-danger ml-2">Due Soon!</span>
                                 @endif
                             </p>
+                            <p>Status: <span class="badge badge-{{ $task->status === 'out_of_date' ? 'danger' : ($task->status === 'pending' ? 'warning' : ($task->status === 'approved' ? 'success' : 'secondary')) }}">{{ ucfirst($task->status) }}</span></p>
                             <div class="task-actions">
                                 <a href="{{ route('task.updateForm', $task->id) }}" class="btn btn-primary">Edit</a>
                                 <form action="{{ route('task.delete', $task->id) }}" method="POST" style="display: inline;">
@@ -51,11 +52,6 @@
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this task?')">Delete</button>
                                 </form>
-                                @if($task->isCompleted)
-                                    <span class="badge badge-success">Completed</span>
-                                @else
-                                    <span class="badge badge-warning">Pending</span>
-                                @endif
                             </div>
                         </div>
                     @endforeach
@@ -75,7 +71,7 @@
                             <h3>{{ $group->name }}</h3>
                             <p>{{ $group->description }}</p>
                             <div class="task-actions">
-                                <form action="{{ route('group.leave') }}" method="POST" style="display: inline;">
+                                <form action="{{ route('groups.leave') }}" method="POST" style="display: inline;">
                                     @csrf
                                     <input type="hidden" name="group_id" value="{{ $group->id }}">
                                     <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to leave this group?')">Leave Group</button>
@@ -85,12 +81,12 @@
                     @endforeach
                 </div>
                 <div class="mt-4">
-                    <a href="{{ route('group.joinForm') }}" class="btn btn-primary">Join Another Group</a>
+                    <a href="{{ route('groups.joinForm') }}" class="btn btn-primary">Join Another Group</a>
                 </div>
             @else
                 <div class="empty-state">
                     <p>You're not a member of any groups yet.</p>
-                    <a href="{{ route('group.joinForm') }}" class="btn btn-primary">Join a Group</a>
+                    <a href="{{ route('groups.joinForm') }}" class="btn btn-primary">Join a Group</a>
                 </div>
             @endif
         </section>
@@ -99,13 +95,14 @@
             <h2>Notifications</h2>
             @if($notifications->isEmpty())
                 <div class="empty-state">
-                    <p>No notifications at the moment.</p>
+                    <p>No notifications at this time.</p>
                 </div>
             @else
                 <div class="notification-list">
                     @foreach($notifications as $notification)
                         <div class="notification-item">
                             <p>{{ $notification->message }}</p>
+                            <small>{{ $notification->created_at->diffForHumans() }}</small>
                         </div>
                     @endforeach
                 </div>
@@ -132,7 +129,7 @@
                     @endforeach
                 </div>
             @endif
-            <a href="{{ route('comment.createForm', ['task_id' => ($tasks->first()->id ?? 1)]) }}" class="btn btn-outline-info mb-3">Add Comment</a>
+            <a href="{{ route('comment.create') }}" class="btn btn-outline-info mb-3">Add Comment</a>
         </section>
     </main>
 </div>

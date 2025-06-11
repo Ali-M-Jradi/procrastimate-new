@@ -54,15 +54,7 @@
         <h3>{{ $task->title }}</h3>
         <p>{{ $task->description }}</p>
         <p>Due: {{ $task->dueDate }}</p>
-        <p>Status: 
-            @if($task->isCompleted)
-                <span class="badge badge-success">Completed</span>
-            @elseif(\Carbon\Carbon::parse($task->dueDate)->isPast())
-                <span class="badge badge-danger">Past Deadline</span>
-            @else
-                <span class="badge badge-warning">Pending</span>
-            @endif
-        </p>
+        <p>Status: <span class="badge badge-{{ $task->status }}">{{ ucfirst($task->status) }}</span></p>
         <a href="{{ route('task.updateForm', $task->id) }}" class="btn btn-primary">Edit</a>
         <form action="{{ route('task.delete', $task->id) }}" method="POST" style="display:inline;">
             @csrf

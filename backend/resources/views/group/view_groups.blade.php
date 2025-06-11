@@ -51,9 +51,8 @@
                         <h3>{{ $group->name }}</h3>
                         <p>{{ $group->description }}</p>
                         <div class="task-actions">
-                            <a href="{{ route('groups.view', $group->id) }}" class="btn btn-primary">View Details</a>
                             @if($isAdminOrCoach)
-                                <a href="{{ route('group.updateForm', $group->id) }}" class="btn btn-secondary">Edit</a>
+                                <a href="{{ route('groups.edit', $group->id) }}" class="btn btn-secondary">Edit</a>
                                 <form action="{{ route('groups.destroy', $group->id) }}" method="POST" style="display: inline;">
                                     @csrf
                                     @method('DELETE')

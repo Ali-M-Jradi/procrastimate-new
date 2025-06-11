@@ -16,9 +16,10 @@ class Task extends Model
         'title',           // Task title/name
         'description',     // Task description
         'dueDate',         // Due date (if your DB column is 'dueDate')
-        'isCompleted',     // Boolean or status field
+        'status',          // Task status: pending, approved, completed, out_of_date
         'user_id',         // <-- add this line
-
+        'coach_id',        // <-- add this line
+        'admin_id',        // <-- add this line
     ];
 
     // Relationships

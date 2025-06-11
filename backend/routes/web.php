@@ -44,7 +44,7 @@ Route::delete('/groups/{id}', [GroupController::class, 'deleteGroup'])->name('gr
 // View all
 Route::get('/groups', [GroupController::class, 'listGroups'])->name('groups.index');
 // View single group (details)
-Route::get('/groups/{id}', [GroupController::class, 'viewGroup'])->name('groups.show');
+Route::get('/groups/{id}', [GroupController::class, 'viewGroup'])->name('groups.view');
 // Join/Leave
 Route::post('/groups/join', [GroupController::class, 'joinGroup'])->name('groups.join');
 Route::get('/groups/join', [GroupController::class, 'showGroupJoinForm'])->name('groups.joinForm');
@@ -74,17 +74,19 @@ Route::post('/task/{id}/reject', [CoachController::class, 'rejectTask'])->name('
 // Notification Management (Shared)
 // --------------------
 Route::get('/my-notifications', [NotificationController::class, 'recieveNotifications'])->name('notifications.view');
-Route::get('/create-notification', [NotificationController::class, 'showNotificationForm'])->name('notification.createForm');
-Route::post('/create-notification', [NotificationController::class, 'sendNotification'])->name('notification.send');
 
 // --------------------
 // Comment Management (Shared)
 // --------------------
-Route::get('/comment/creationForm', [CommentController::class, 'showCommentCreationForm'])->name('comment.createForm');
-Route::post('/comment/create', [CommentController::class, 'createComment'])->name('comment.create');
-// Coach comment management
-Route::get('/coach/comment/create/{taskId}', [CoachController::class, 'showCommentCreationForm'])->name('coach.comment.createForm');
-Route::post('/coach/comment/create', [CoachController::class, 'createComment'])->name('coach.comment.create');
+Route::get('/comment/create', [CommentController::class, 'showCommentCreationForm'])->name('comment.create');
+Route::post('/comment/create', [CommentController::class, 'createComment'])->name('comment.store');
+// Comment delete (shared for user/coach)
+Route::delete('/comment/{id}/delete', [App\Http\Controllers\CommentController::class, 'deleteComment'])->name('comment.delete');
+// Admin comment management (view, edit, delete, list)
+Route::get('/admin/comments', [AdminController::class, 'listComments'])->name('admin.comment.index');
+Route::get('/admin/comments/{id}/edit', [AdminController::class, 'showEditCommentForm'])->name('admin.comment.editForm');
+Route::put('/admin/comments/{id}/edit', [AdminController::class, 'updateComment'])->name('admin.comment.update');
+Route::delete('/admin/comments/{id}/delete', [AdminController::class, 'deleteComment'])->name('admin.comment.delete');
 
 // --------------------
 // Admin Management
@@ -109,13 +111,6 @@ Route::get('/admin/coach/{id}/update', [AdminController::class, 'showUpdateCoach
 Route::put('/admin/coach/{id}/update', [AdminController::class, 'updateCoach'])->name('admin.coach.update');
 Route::get('/admin/coach/{id}/delete', [AdminController::class, 'showDeleteCoachForm'])->name('admin.coach.deleteForm');
 Route::post('/admin/coach/{id}/delete', [AdminController::class, 'deleteCoach'])->name('admin.coach.delete');
-// Admin comment management
-Route::get('/admin/comments', [AdminController::class, 'listComments'])->name('admin.comment.index');
-Route::get('/admin/comments/create', [AdminController::class, 'showCreateCommentForm'])->name('admin.comment.createForm');
-Route::post('/admin/comments/create', [AdminController::class, 'createComment'])->name('admin.comment.create');
-Route::get('/admin/comments/{id}/edit', [AdminController::class, 'showEditCommentForm'])->name('admin.comment.editForm');
-Route::put('/admin/comments/{id}/edit', [AdminController::class, 'updateComment'])->name('admin.comment.update');
-Route::delete('/admin/comments/{id}/delete', [AdminController::class, 'deleteComment'])->name('admin.comment.delete');
 // Admin notification management
 Route::get('/admin/notifications', [AdminController::class, 'listNotifications'])->name('admin.notification.index');
 Route::get('/admin/notifications/create', [AdminController::class, 'showCreateNotificationForm'])->name('admin.notification.createForm');

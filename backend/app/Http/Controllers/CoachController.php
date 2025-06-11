@@ -22,28 +22,30 @@ class CoachController extends Controller
     public function viewDashboard()
     {
         $user = auth()->user();
-        // Get all tasks where the current user is the coach OR the user assigned is the coach
-        $tasks = \App\Models\Task::where('coach_id', $user->id)
-            ->orWhere('user_id', $user->id)
-            ->with(['user', 'comments.user'])
+        // 1. User tasks needing approval/rejection (created by users, not coaches/admins, coach_id null, isCompleted false, status 'pending')
+        $userTasksToApprove = \App\Models\Task::whereNull('coach_id')
+            ->where('status', 'pending')
+            ->whereHas('user', function($q) { $q->where('role', 'user'); })
+            ->with(['user'])
             ->orderBy('created_at', 'desc')
             ->get();
-        // Get groups where the user is a member using the correct pivot table
-        $groups = $user->groups()
-            ->with('users')
+        // 2. Tasks created by this coach (coach_id = coach, user_id != coach, and user is a user)
+        $coachCreatedTasks = \App\Models\Task::where('coach_id', $user->id)
+            ->where('user_id', '!=', $user->id)
+            ->whereHas('user', function($q) { $q->where('role', 'user'); })
+            ->with(['user'])
             ->orderBy('created_at', 'desc')
             ->get();
-        // Get notifications for this coach using correct column names from schema
-        $notifications = \App\Models\Notification::where('to_user_id', $user->id)
+        // 3. Tasks assigned to this coach by an admin (user_id = coach, admin_id not null)
+        $adminAssignedTasks = \App\Models\Task::where('user_id', $user->id)
+            ->whereNotNull('admin_id')
+            ->with(['admin'])
             ->orderBy('created_at', 'desc')
             ->get();
-        // Get comments directly through tasks relationship
-        $comments = \App\Models\Comment::select('id', 'user_id', 'task_id', 'comment', 'created_at')
-            ->whereIn('task_id', $tasks->pluck('id'))
-            ->with(['user:id,name,email', 'task:id,title'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-        return view('dashboard.coachDashboard', compact('user', 'groups', 'tasks', 'notifications', 'comments'));
+        $groups = $user->groups()->with('users')->orderBy('created_at', 'desc')->get();
+        $notifications = \App\Models\Notification::where('to_user_id', $user->id)->orderBy('created_at', 'desc')->get();
+        $comments = \App\Models\Comment::with(['user', 'task'])->where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+        return view('dashboard.coachDashboard', compact('user', 'groups', 'userTasksToApprove', 'coachCreatedTasks', 'adminAssignedTasks', 'notifications', 'comments'));
     }
 
     public function viewTask($id)
@@ -76,17 +78,25 @@ class CoachController extends Controller
 
     public function createTask(Request $request)
     {   
+        $user = auth()->user();
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'dueDate' => 'required|date',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string|max:1000',
+            'dueDate' => 'required|date|after:today',
         ]);
+        // Prevent coach from assigning tasks to themselves or to other coaches/admins
+        $assignedUser = \App\Models\User::find($request->user_id);
+        if ($assignedUser->id == $user->id || $assignedUser->role !== 'user') {
+            return redirect()->back()->withErrors('Coaches can only assign tasks to users, not to themselves or other coaches/admins.');
+        }
         Task::create([
             'user_id' => $request->user_id,
-            'coach_id' => Auth::user()->id,
+            'coach_id' => $user->id,
             'title' => $request->title,
             'description' => $request->description,
             'dueDate' => $request->dueDate,
-            'isCompleted' => false,
+            'status' => 'pending',
         ]);
         return redirect()->route('coach.dashboard')->with('success', 'Task Created.');
     }
@@ -105,6 +115,11 @@ class CoachController extends Controller
 
     public function showTaskCreationForm()
     {
+        $user = auth()->user();
+        if ($user->role === 'coach') {
+            $users = \App\Models\User::where('role', 'user')->get();
+            return view('task.create', compact('users'));
+        }
         return view('task.create');
     }
 
@@ -120,17 +135,29 @@ class CoachController extends Controller
             'task_id' => 'required|exists:tasks,id',
             'comment' => 'required|string|max:255',
         ]);
-        Comment::create([
+        $comment = Comment::create([
             'user_id' => auth()->id(),
             'task_id' => $request->task_id,
             'comment' => $request->comment,
         ]);
-        return redirect()->back()->with('success', 'Comment created successfully!');
+        // Send notification to the owner of the task if not the commenter
+        $task = Task::find($request->task_id);
+        if ($task && $task->user_id !== auth()->id()) {
+            \App\Models\Notification::create([
+                'to_user_id' => $task->user_id,
+                'message' => 'New comment on your task: "' . $task->title . '"',
+                'type' => 'comment',
+                'notifiable_type' => Comment::class,
+                'notifiable_id' => $comment->id,
+                'read' => false,
+            ]);
+        }
+        return redirect()->route('coach.dashboard')->with('success', 'Comment created successfully!');
     }
 
     public function showCommentCreationForm($taskId)
     {
-        $task = Task::where('coach_id', auth()->id())->findOrFail($taskId);
+        $task = Task::findOrFail($taskId);
         return view('comment.create_comment', compact('task'));
     }
     
@@ -192,11 +219,15 @@ class CoachController extends Controller
         if ($task->user_id == $user->id) {
             return redirect()->back()->withErrors('You cannot approve your own task.');
         }
-        $task->update(['isCompleted' => true]);
+        $task->update(['status' => 'approved']);
         // Send notification to the user
         \App\Models\Notification::create([
             'to_user_id' => $task->user_id,
             'message' => 'Your task "' . $task->title . '" was approved by ' . $user->name . '.',
+            'type' => 'task_approved',
+            'notifiable_type' => Task::class,
+            'notifiable_id' => $task->id,
+            'read' => false,
         ]);
         return redirect()->route('coach.dashboard')->with('success', 'Task approved successfully!');
     }
@@ -208,11 +239,15 @@ class CoachController extends Controller
         if ($task->user_id == $user->id) {
             return redirect()->back()->withErrors('You cannot reject your own task.');
         }
-        $task->update(['isCompleted' => false]);
+        $task->update(['status' => 'out_of_date']);
         // Send notification to the user
         \App\Models\Notification::create([
             'to_user_id' => $task->user_id,
             'message' => 'Your task "' . $task->title . '" was rejected by ' . $user->name . '.',
+            'type' => 'task_rejected',
+            'notifiable_type' => Task::class,
+            'notifiable_id' => $task->id,
+            'read' => false,
         ]);
         return redirect()->route('coach.dashboard')->with('success', 'Task rejected successfully!');
     }
@@ -252,7 +287,7 @@ class CoachController extends Controller
             'description' => $request->description,
         ]);
         
-        return redirect()->route('groups.view', ['id' => $id])->with('success', 'Group updated successfully!');
+        return redirect()->route('coach.dashboard')->with('success', 'Group updated successfully!');
     }
 
     public function deleteGroup($id){

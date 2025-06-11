@@ -90,13 +90,7 @@
                             <p>{{ $task->description }}</p>
                             <p class="task-date">Due: {{ date('F j, Y', strtotime($task->dueDate)) }}</p>
                             <p>Assigned to: {{ $task->user->name }}</p>
-                            <div class="task-actions">
-                                @if(!$task->isCompleted)
-                                    <span class="badge badge-warning">Pending</span>
-                                @else
-                                    <span class="badge badge-success">Completed</span>
-                                @endif
-                            </div>
+                            <p>Status: <span class="badge badge-{{ $task->status === 'out_of_date' ? 'danger' : ($task->status === 'pending' ? 'warning' : ($task->status === 'approved' ? 'success' : 'secondary')) }}">{{ ucfirst($task->status) }}</span></p>
                         </div>
                     @endforeach
                 </div>
@@ -109,11 +103,24 @@
 
         <section id="comments">
             <h2>All Comments</h2>
-            <a href="{{ route('admin.comment.create') }}" class="btn btn-primary mb-3">Manage Comments</a>
+            <a href="{{ route('comment.create') }}" class="btn btn-primary mb-3">Manage Comments</a>
         </section>
         <section id="notifications">
-            <h2>All Notifications</h2>
-            <a href="{{ route('admin.notification.index') }}" class="btn btn-primary mb-3">Manage Notifications</a>
+            <h2>Notifications</h2>
+            @if(isset($notifications) && $notifications->count() > 0)
+                <div class="notification-list">
+                    @foreach($notifications as $notification)
+                        <div class="notification-item">
+                            <p>{{ $notification->message }}</p>
+                            <small>{{ $notification->created_at->diffForHumans() }}</small>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="empty-state">
+                    <p>No notifications at this time.</p>
+                </div>
+            @endif
         </section>
     </main>
 </div>
