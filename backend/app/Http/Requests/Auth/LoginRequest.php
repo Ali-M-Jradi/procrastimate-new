@@ -51,6 +51,14 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Check if the authenticated user has the correct role
+        if (Auth::user()->role !== $this->input('role')) {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'role' => __('auth.role_failed'),
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

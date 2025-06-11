@@ -34,6 +34,14 @@
                 <label for="password">Password</label>
                 <input type="password" name="password" id="password" class="form-control" required>
             </div>
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select name="role" id="role" class="form-control">
+                    <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User</option>
+                    <option value="coach" {{ old('role') == 'coach' ? 'selected' : '' }}>Coach</option>
+                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                </select>
+            </div>
             <div class="task-actions mt-4">
                 <button type="submit" class="btn btn-primary">Login</button>
                 <a href="{{ route('register') }}" class="btn btn-success">Register</a>

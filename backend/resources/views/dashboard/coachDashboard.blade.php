@@ -136,4 +136,7 @@
         </section>
     </main>
 </div>
+<!-- Scroll-to-top button placeholder for JS -->
+<div class="scroll-to-top" style="display:none;">↑</div>
+<script src="{{ asset('js/main-ui.js') }}"></script>
 @endsection

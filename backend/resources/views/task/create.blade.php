@@ -34,10 +34,12 @@
                 <label for="description">Description</label>
                 <textarea name="description" id="description" class="form-control" required placeholder="Enter task description" rows="4">{{ old('description') }}</textarea>
             </div>
+            @if(in_array(auth()->user()->role, ['coach', 'admin']))
             <div class="form-group">
                 <label for="user_id">Assign to User</label>
                 <input type="number" name="user_id" id="user_id" class="form-control" required>
             </div>
+            @endif
             <div class="form-group">
                 <label for="dueDate">Due Date</label>
                 <input type="date" name="dueDate" id="dueDate" class="form-control" required value="{{ old('dueDate') }}">
@@ -49,4 +51,5 @@
         </form>
     </section>
 </div>
+<script src="{{ asset('js/main-ui.js') }}"></script>
 @endsection
