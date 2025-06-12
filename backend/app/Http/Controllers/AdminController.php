@@ -38,20 +38,18 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:user,coach',
         ]);
-        
-        User::create([
+
+        $user = \App\Models\User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
+            'role' => 'user', // Always create as regular user regardless of form input
         ]);
-        
-        return redirect()->route('admin.dashboard')
-            ->with('success', 'User created successfully!');
+
+        return redirect()->route('admin.dashboard')->with('success', 'User created successfully!');
     }
 
     public function showUpdateUserForm($id)
@@ -141,7 +139,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
         
@@ -149,7 +147,7 @@ class AdminController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'coach',
+            'role' => 'coach', // Always create as coach regardless of form input
         ]);
         
         return redirect()->route('admin.dashboard')

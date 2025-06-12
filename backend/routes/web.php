@@ -43,12 +43,12 @@ Route::put('/groups/{id}', [GroupController::class, 'updateGroup'])->name('group
 Route::delete('/groups/{id}', [GroupController::class, 'deleteGroup'])->name('groups.destroy');
 // View all
 Route::get('/groups', [GroupController::class, 'listGroups'])->name('groups.index');
-// View single group (details)
-Route::get('/groups/{id}', [GroupController::class, 'viewGroup'])->name('groups.view');
 // Join/Leave
 Route::post('/groups/join', [GroupController::class, 'joinGroup'])->name('groups.join');
 Route::get('/groups/join', [GroupController::class, 'showGroupJoinForm'])->name('groups.joinForm');
 Route::post('/groups/leave', [GroupController::class, 'leaveGroup'])->name('groups.leave');
+// View single group (details) - This needs to be after the specific routes to avoid conflicts
+Route::get('/groups/{id}', [GroupController::class, 'viewGroup'])->name('groups.view');
 
 // --------------------
 // Task Management (Shared)
@@ -84,6 +84,8 @@ Route::post('/comment/create', [CommentController::class, 'createComment'])->nam
 Route::delete('/comment/{id}/delete', [App\Http\Controllers\CommentController::class, 'deleteComment'])->name('comment.delete');
 // Admin comment management (view, edit, delete, list)
 Route::get('/admin/comments', [AdminController::class, 'listComments'])->name('admin.comment.index');
+Route::get('/admin/comments/create', [AdminController::class, 'showCreateCommentForm'])->name('admin.comment.createForm');
+Route::post('/admin/comments/create', [AdminController::class, 'createComment'])->name('admin.comment.create');
 Route::get('/admin/comments/{id}/edit', [AdminController::class, 'showEditCommentForm'])->name('admin.comment.editForm');
 Route::put('/admin/comments/{id}/edit', [AdminController::class, 'updateComment'])->name('admin.comment.update');
 Route::delete('/admin/comments/{id}/delete', [AdminController::class, 'deleteComment'])->name('admin.comment.delete');
@@ -106,7 +108,7 @@ Route::get('/admin/user/{id}/demote-coach', [AdminController::class, 'showDemote
 Route::post('/admin/user/{id}/demote-coach', [AdminController::class, 'demoteCoach'])->name('admin.coach.demote');
 // Coach management
 Route::get('/admin/coach/create', [AdminController::class, 'showCoachCreationForm'])->name('admin.coach.createForm');
-Route::post('/admin/coach/create', [AdminController::class, 'createCoach'])->name('admin.create.coach');
+Route::post('/admin/coach/create', [AdminController::class, 'createCoach'])->name('admin.coach.create');
 Route::get('/admin/coach/{id}/update', [AdminController::class, 'showUpdateCoachForm'])->name('admin.coach.updateForm');
 Route::put('/admin/coach/{id}/update', [AdminController::class, 'updateCoach'])->name('admin.coach.update');
 Route::get('/admin/coach/{id}/delete', [AdminController::class, 'showDeleteCoachForm'])->name('admin.coach.deleteForm');

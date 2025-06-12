@@ -25,6 +25,11 @@
     <main>
         <section id="users">
             <h2>All Users</h2>
+            <div class="mb-3">
+                <a href="{{ route('admin.user.createForm') }}" class="btn btn-success me-2">Create New User</a>
+                <a href="{{ route('admin.coach.createForm') }}" class="btn btn-info me-2">Create New Coach</a>
+            </div>
+            <br>
             @if(isset($users) && $users->count() > 0)
                 <div class="user-list">
                     @foreach($users as $userItem)
@@ -103,7 +108,7 @@
 
         <section id="comments">
             <h2>All Comments</h2>
-            <a href="{{ route('comment.create') }}" class="btn btn-primary mb-3">Manage Comments</a>
+            <a href="{{ route('admin.comment.index') }}" class="btn btn-primary mb-3">Manage Comments</a>
         </section>
         <section id="notifications">
             <h2>Notifications</h2>

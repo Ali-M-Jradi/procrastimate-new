@@ -130,6 +130,7 @@
                 </div>
             @endif
             <a href="{{ route('comment.create') }}" class="btn btn-outline-info mb-3">Add Comment</a>
+            
         </section>
     </main>
 </div>

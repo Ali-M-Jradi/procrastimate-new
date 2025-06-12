@@ -77,6 +77,8 @@
                 <label for="dueDate">Due Date</label>
                 <input type="date" name="dueDate" id="dueDate" class="form-control" value="{{ $task->dueDate }}" required>
             </div>
+            
+            @if($user->role === 'admin' || $user->role === 'coach')
             <div class="form-group">
                 <label for="user_id">Assign to User</label>
                 <select name="user_id" id="user_id" class="form-control" required>
@@ -86,6 +88,10 @@
                     @endforeach
                 </select>
             </div>
+            @else
+            <!-- For regular users, we use a hidden field to maintain the current user as the task owner -->
+            <input type="hidden" name="user_id" value="{{ $user->id }}">
+            @endif
             <div class="task-actions">
                 <button type="submit" class="btn btn-primary">Update Task</button>
                 @if($user->role === 'admin')

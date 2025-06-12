@@ -30,22 +30,26 @@
                 <a href="{{ route('userDashboard') }}" class="btn btn-primary">Back to Dashboard</a>
             </div>
         @else
-            <form action="{{ route('group.join') }}" method="POST">
-                @csrf
-                <div class="form-group">
-                    <label for="group_id">Select Group:</label>
-                    <select id="group_id" name="group_id" class="form-control" required>
-                        <option value="">Choose a group...</option>
-                        @foreach($groups as $group)
-                            <option value="{{ $group->id }}">{{ $group->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="task-actions">
-                    <button type="submit" class="btn btn-primary">Join Group</button>
-                    <a href="{{ route('userDashboard') }}" class="btn btn-danger">Cancel</a>
-                </div>
-            </form>
+            <div class="row">
+                @foreach($groups as $group)
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ $group->name }}</h5>
+                                <p class="card-text">{{ $group->description }}</p>
+                                <form action="{{ route('groups.join') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="group_id" value="{{ $group->id }}">
+                                    <button type="submit" class="btn btn-primary">Join This Group</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            <div class="mt-3">
+                <a href="{{ route('userDashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
         @endif
     </section>
 </div>

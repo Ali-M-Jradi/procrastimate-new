@@ -51,27 +51,22 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
-    public function group()
-    {
-        return $this->belongsToMany(Group::class, 'group_users');
-    }
-    public function groupUsers()
-    {
-        return $this->hasMany(Group_User::class);
-    }
     public function tasks()
     {
-    return $this->hasMany(Task::class, 'user_id');
+        return $this->hasMany(Task::class, 'user_id');
     }
 
     public function comments()
     {
         return $this->hasMany(Comment::class);
     }
+    
     public function reports()
     {
         return $this->hasMany(Report::class);
     }
+    
+    // Standardized relationship for groups
     public function groups()
     {
         return $this->belongsToMany(\App\Models\Group::class, 'group_user', 'user_id', 'group_id');

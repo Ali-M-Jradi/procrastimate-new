@@ -2,10 +2,9 @@
 
 @section('content')
 <div class="container">
-    <h1>Create New Coach</h1>
-
-    <form action="{{ route('admin.create.coach') }}" method="POST" class="mt-4">
+    <h1>Create New Coach</h1>    <form action="{{ route('admin.coach.create') }}" method="POST" class="mt-4">
         @csrf
+        <input type="hidden" name="role" value="coach">
         
         <div class="form-group">
             <label for="name">Name</label>

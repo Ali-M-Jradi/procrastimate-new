@@ -48,8 +48,8 @@
         @endif
         @php
             $isAdminOrCoach = auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'coach');
-        @endphp
-        <form action="{{ route('groups.update', $group->id) }}" method="PUT">
+        @endphp        
+        <form action="{{ route('groups.update', $group->id) }}" method="POST">
             @csrf
             @method('PUT')
             <div class="form-group">

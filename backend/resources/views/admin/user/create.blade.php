@@ -29,24 +29,13 @@
             @error('password')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
-        </div>
-
-        <div class="form-group mt-3">
+        </div>        <div class="form-group mt-3">
             <label for="password_confirmation">Confirm Password</label>
             <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required>
         </div>
-
-        <div class="form-group mt-3">
-            <label for="role">Role</label>
-            <select name="role" id="role" class="form-control @error('role') is-invalid @enderror" required>
-                <option value="">Select Role</option>
-                <option value="user" {{ old('role') === 'user' ? 'selected' : '' }}>User</option>
-                <option value="coach" {{ old('role') === 'coach' ? 'selected' : '' }}>Coach</option>
-            </select>
-            @error('role')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
+        
+        <!-- Hidden input for role with fixed value 'user' -->
+        <input type="hidden" name="role" value="user">
 
         <div class="mt-4">
             <button type="submit" class="btn btn-primary">Create User</button>

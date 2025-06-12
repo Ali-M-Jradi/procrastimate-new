@@ -12,7 +12,7 @@
         @if($groups->isEmpty())
             <div class="empty-state">
                 <p>You're not a member of any groups yet.</p>
-                <a href="{{ route('group.joinForm') }}" class="btn btn-primary">Join a Group</a>
+                <a href="{{ route('groups.joinForm') }}" class="btn btn-primary">Join a Group</a>
             </div>
         @else
             <div class="group-list">
@@ -21,7 +21,7 @@
                         <h3>{{ $group->name }}</h3>
                         <p>{{ $group->description }}</p>
                         <div class="task-actions">
-                            <form action="{{ route('group.leave') }}" method="POST" style="display: inline;">
+                            <form action="{{ route('groups.leave') }}" method="POST" style="display: inline;">
                                 @csrf
                                 <input type="hidden" name="group_id" value="{{ $group->id }}">
                                 <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to leave this group?')">Leave Group</button>

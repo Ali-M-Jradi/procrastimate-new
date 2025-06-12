@@ -24,9 +24,7 @@ class Group extends Model
         return $this->hasMany(Group_Task::class);
     }
 
-    public function usersGroup(){
-        return $this-> belongsToMany(User::class,'group_user');
-    }
+    // Standardized relationship for users
     public function users()
     {
         return $this->belongsToMany(\App\Models\User::class, 'group_user', 'group_id', 'user_id');

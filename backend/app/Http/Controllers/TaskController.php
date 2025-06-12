@@ -81,7 +81,19 @@ class TaskController extends Controller
     {
         $user = auth()->user();
         $task = Task::findOrFail($id);
-        $users = \App\Models\User::all();
+        
+        // Filter users based on role
+        if ($user->role === 'admin') {
+            // Admins can see all users
+            $users = \App\Models\User::all();
+        } elseif ($user->role === 'coach') {
+            // Coaches can only see regular users
+            $users = \App\Models\User::where('role', 'user')->get();
+        } else {
+            // Regular users can only see themselves
+            $users = \App\Models\User::where('id', $user->id)->get();
+        }
+        
         return view('task.update', compact('task', 'users', 'user'));
     }
 
@@ -89,13 +101,30 @@ class TaskController extends Controller
     {
         $user = auth()->user();
         $task = Task::findOrFail($id);
+        
         $rules = [
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
             'dueDate' => ['required', 'date', 'after:today'],
-            'user_id' => 'required|exists:users,id',
         ];
+        
+        // Add user_id validation based on role
+        if ($user->role === 'admin') {
+            $rules['user_id'] = 'required|exists:users,id';
+        } elseif ($user->role === 'coach') {
+            $rules['user_id'] = 'required|exists:users,id';
+            
+            // Check if the selected user is a regular user
+            if ($request->has('user_id') && \App\Models\User::where('id', $request->user_id)->where('role', '!=', 'user')->exists()) {
+                return redirect()->back()->withErrors('Coaches can only assign tasks to regular users.');
+            }
+        } else {
+            // Regular users can only assign tasks to themselves
+            $request->merge(['user_id' => $user->id]);
+        }
+        
         $request->validate($rules);
+        
         $updateData = [
             'title' => $request->title,
             'description' => $request->description,
