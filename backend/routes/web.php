@@ -9,6 +9,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\TaskStatusController;
 
 // --------------------
 // Public Auth Routes
@@ -147,4 +148,9 @@ Route::middleware(['auth', 'checkRole:admin'])->group(function () {
     Route::get('/admin/notifications/{id}/edit', [AdminController::class, 'showEditNotificationForm'])->name('admin.notification.editForm');
     Route::put('/admin/notifications/{id}/edit', [AdminController::class, 'updateNotification'])->name('admin.notification.update');
     Route::delete('/admin/notifications/{id}/delete', [AdminController::class, 'deleteNotification'])->name('admin.notification.delete');
+});
+
+// Task status update route - available to all authenticated users
+Route::middleware(['auth'])->group(function () {
+    Route::get('/update-task-statuses', [TaskStatusController::class, 'updateAllTaskStatuses'])->name('tasks.updateStatus');
 });

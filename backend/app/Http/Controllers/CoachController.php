@@ -22,6 +22,12 @@ class CoachController extends Controller
     public function viewDashboard()
     {
         $user = auth()->user();
+        
+        // Update task statuses for past due tasks
+        Task::where('dueDate', '<', now())
+            ->where('status', '!=', 'completed')
+            ->update(['status' => 'out_of_date']);
+            
         // 1. User tasks needing approval/rejection (created by users, not coaches/admins, coach_id null, isCompleted false, status 'pending')
         $userTasksToApprove = \App\Models\Task::whereNull('coach_id')
             ->where('status', 'pending')

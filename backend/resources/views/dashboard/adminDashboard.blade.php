@@ -1,26 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/style.css') }}">
-<header class="header">
-    <h1>Welcome, Admin {{ $admin->name ?? 'User' }}</h1>
-    <nav>
-        <ul>
-            <li><a href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
-            <li><a href="#users">Users</a></li>
-            <li><a href="#groups">Groups</a></li>
-            <li><a href="#tasks">Tasks</a></li>
-            <li><a href="#comments">Comments</a></li>
-            <li><a href="#notifications">Notifications</a></li>
-            <li>
-                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-danger">Logout</button>
-                </form>
-            </li>
-        </ul>
-    </nav>
-</header>
+@include('partials.header', ['title' => 'Welcome, Admin ' . ($admin->name ?? 'User')])
 <div class="container">
     <main>
         <section id="users">

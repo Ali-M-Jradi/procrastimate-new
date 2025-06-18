@@ -9,46 +9,13 @@
     }
 @endphp
 @if($user && $user->role === 'admin')
-    <header class="header">
-        <h1>Admin Dashboard</h1>
-        <nav>
-            <ul>
-                <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                <li><a href="{{ route('groups.index') }}">Groups</a></li>
-                <li><a href="{{ route('admin.user.createForm') }}">Add User</a></li>
-                <li><a href="{{ route('admin.notification.index') }}">Notifications</a></li>
-                <li><a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a></li>
-            </ul>
-        </nav>
-    </header>
+    @include('partials.header', ['title' => 'Admin Dashboard'])
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
 @elseif($user && $user->role === 'coach')
-    <header class="header">
-        <h1>Coach Dashboard</h1>
-        <nav>
-            <ul>
-                <li><a href="{{ route('coach.dashboard') }}">Dashboard</a></li>
-                <li><a href="{{ route('groups.index') }}">Groups</a></li>
-                <li><a href="{{ route('coach.task.create') }}">Add Task</a></li>
-                <li><a href="{{ route('notifications.view') }}">Notifications</a></li>
-                <li><a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a></li>
-            </ul>
-        </nav>
-    </header>
+    @include('partials.header', ['title' => 'Coach Dashboard'])
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
 @elseif($user && $user->role === 'user')
-    <header class="header">
-        <h1>User Dashboard</h1>
-        <nav>
-            <ul>
-                <li><a href="{{ route('userDashboard') }}">Dashboard</a></li>
-                <li><a href="#tasks">Tasks</a></li>
-                <li><a href="#groups">Groups</a></li>
-                <li><a href="#comments">Comments</a></li>
-                <li><a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a></li>
-            </ul>
-        </nav>
-    </header>
+    @include('partials.header', ['title' => 'My Dashboard'])
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
 @endif
 <div class="container fade-section">
@@ -76,6 +43,16 @@
             <div class="form-group">
                 <label for="dueDate">Due Date</label>
                 <input type="date" name="dueDate" id="dueDate" class="form-control" value="{{ $task->dueDate }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select name="status" id="status" class="form-control">
+                    <option value="pending" @if($task->status === 'pending') selected @endif>Pending</option>
+                    <option value="approved" @if($task->status === 'approved') selected @endif>Approved</option>
+                    <option value="completed" @if($task->status === 'completed') selected @endif>Completed</option>
+                    <option value="out_of_date" @if($task->status === 'out_of_date') selected @endif>Out of Date</option>
+                </select>
             </div>
             
             @if($user->role === 'admin' || $user->role === 'coach')

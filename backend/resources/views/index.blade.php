@@ -1,8 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/style.css') }}">
-
 <header class="header">
     <h1>Welcome to Procrastimate</h1>
     <nav>
@@ -27,7 +25,7 @@
     </p>
 </header>
 
-<div id="aboutUs">
+<div id="aboutUs" class="container fade-section">
     <h2>About Us</h2>
     <p>
         We are a team of developers who are passionate about helping people manage their time and tasks effectively.<br>
@@ -35,7 +33,7 @@
     </p>
 </div>
 
-<div id="features">
+<div id="features" class="container fade-section">
     <h2>Features of Procrastimate</h2>
     <ul>
         <li>Create, update, and delete tasks</li>
@@ -46,7 +44,7 @@
     </ul>
 </div>
 
-<div class="contact-section">
+<div class="contact-section container fade-section">
     <h2>Contact Us</h2>
     <p>
         If you have any questions or feedback, please feel free to contact us at

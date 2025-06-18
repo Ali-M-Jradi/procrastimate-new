@@ -1,7 +1,19 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+@php
+    $user = auth()->user();
+    $title = '';
+    if($user && $user->role === 'admin') {
+        $title = 'Admin Dashboard';
+    } elseif($user && $user->role === 'coach') {
+        $title = 'Coach Dashboard';
+    } elseif($user && $user->role === 'user') {
+        $title = 'My Dashboard';
+    }
+@endphp
+@include('partials.header', ['title' => $title])
+<div class="container fade-section">
     <section>
         <h2>Delete Task</h2>
         <div class="alert alert-danger">

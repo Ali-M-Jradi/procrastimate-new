@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $user = auth()->user();
+    $title = '';
+    if($user && $user->role === 'admin') {
+        $title = 'Admin Dashboard';
+    } elseif($user && $user->role === 'coach') {
+        $title = 'Coach Dashboard';
+    }
+@endphp
+@include('partials.header', ['title' => $title])
 <div class="container fade-section">
     <h2>Reject Task</h2>
     <div class="alert alert-warning">

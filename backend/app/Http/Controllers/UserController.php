@@ -14,6 +14,10 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $user->load('groups'); // Eager load the groups relationship
+        
+        // First, update task statuses that are past due
+        $this->updateTaskStatuses();
+        
         // Show all tasks where the user is the assigned user (no created_by column)
         $tasks = \App\Models\Task::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
@@ -22,6 +26,15 @@ class UserController extends Controller
         $comments = $user->comments;
         $coach = $user->coach ?? null;
         return view('dashboard.userDashboard', compact('user', 'tasks', 'notifications', 'comments', 'coach'));
+    }
+    
+    // Helper method to update task statuses
+    private function updateTaskStatuses()
+    {
+        // Find all tasks with due dates in the past that aren't completed
+        Task::where('dueDate', '<', now())
+            ->where('status', '!=', 'completed')
+            ->update(['status' => 'out_of_date']);
     }
 
     public function showTaskCreationForm()

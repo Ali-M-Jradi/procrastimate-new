@@ -2,24 +2,7 @@
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-<header class="header">
-    <h1>Welcome, Coach {{ $user->name }}</h1>
-    <nav>
-        <ul>
-            <li><a href="{{ route('coach.dashboard') }}">Dashboard</a></li>
-            <li><a href="#groups">Groups</a></li>
-            <li><a href="#tasks">Tasks</a></li>
-            <li><a href="#notifications">Notifications</a></li>
-            <li><a href="#comments">Comments</a></li>
-            <li>
-                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-danger">Logout</button>
-                </form>
-            </li>
-        </ul>
-    </nav>
-</header>
+@include('partials.header', ['title' => 'Welcome, Coach {{ $user->name }}'])
 <div class="container">
     <main>
         <section id="groups">

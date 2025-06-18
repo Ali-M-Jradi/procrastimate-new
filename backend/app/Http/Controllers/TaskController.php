@@ -82,6 +82,9 @@ class TaskController extends Controller
         $user = auth()->user();
         $task = Task::findOrFail($id);
         
+        // Check if the task status needs to be updated based on due date
+        $task = $this->checkTaskStatus($task);
+        
         // Filter users based on role
         if ($user->role === 'admin') {
             // Admins can see all users
@@ -105,7 +108,8 @@ class TaskController extends Controller
         $rules = [
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
-            'dueDate' => ['required', 'date', 'after:today'],
+            'dueDate' => ['required', 'date'],
+            'status' => ['required', 'in:pending,approved,completed,out_of_date'],
         ];
         
         // Add user_id validation based on role
@@ -130,6 +134,7 @@ class TaskController extends Controller
             'description' => $request->description,
             'dueDate' => $request->dueDate,
             'user_id' => $request->user_id,
+            'status' => $request->status,
         ];
         $task->update($updateData);
         if ($user->role === 'admin') {
@@ -158,6 +163,23 @@ class TaskController extends Controller
     public function viewTask($id)
     {
         $task = Task::findOrFail($id);
+        // Check if the task status needs to be updated based on due date
+        $task = $this->checkTaskStatus($task);
         return view('task.view', compact('task'));
+    }
+
+    // Check and update task status based on due date
+    protected function checkTaskStatus(Task $task)
+    {
+        $dueDate = \Carbon\Carbon::parse($task->dueDate);
+        $today = now();
+        
+        // If past due date and not completed, mark as out_of_date
+        if ($today->gt($dueDate) && $task->status !== 'completed') {
+            $task->status = 'out_of_date';
+            $task->save();
+        }
+        
+        return $task;
     }
 }

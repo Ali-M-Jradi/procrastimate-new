@@ -1,7 +1,19 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+@php
+    $user = auth()->user();
+    $title = '';
+    if($user && $user->role === 'admin') {
+        $title = 'Admin Dashboard';
+    } elseif($user && $user->role === 'coach') {
+        $title = 'Coach Dashboard';
+    } elseif($user && $user->role === 'user') {
+        $title = 'My Dashboard';
+    }
+@endphp
+@include('partials.header', ['title' => $title])
+<div class="container fade-section">
     <h1>All Tasks</h1>
     <a href="{{ route('task.createForm') }}" class="btn btn-primary mb-3">Create New Task</a>
     @if($tasks->isEmpty())

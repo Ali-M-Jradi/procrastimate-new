@@ -14,6 +14,12 @@ class AdminController extends Controller
     public function viewDashboard()
     {
         $admin = Auth::user();
+        
+        // Update task statuses for past due tasks
+        Task::where('dueDate', '<', now())
+            ->where('status', '!=', 'completed')
+            ->update(['status' => 'out_of_date']);
+            
         // Show all tasks where the admin is the assigned user (no created_by column)
         $tasks = \App\Models\Task::where('user_id', $admin->id)
             ->with(['user'])
